@@ -136,8 +136,10 @@ main{
 .opp-info{margin-left:auto;display:flex;align-items:center;gap:18px;font-size:12px;letter-spacing:.14em}
 .opp-info #opp-name{color:var(--amber)}
 .score{color:var(--orange);font-weight:700;letter-spacing:.2em}
+.score-wrap{display:flex;flex-direction:column;align-items:flex-end;gap:3px}
+.score-cap{font-size:8px;letter-spacing:.22em;color:var(--dim)}
 
-.board{display:grid;grid-template-columns:1fr 180px 1fr;gap:16px;align-items:start;max-width:880px;margin:0 auto}
+.board{display:grid;grid-template-columns:1fr 230px 1fr;gap:16px;align-items:start;max-width:880px;margin:0 auto}
 .side{background:var(--panel);border:1px solid var(--line);padding:14px;min-height:260px}
 .side-label{font-size:9px;letter-spacing:.3em;color:var(--dim);margin-bottom:12px}
 .cards{display:flex;flex-wrap:wrap;gap:6px;min-height:96px;align-content:flex-start}
@@ -158,8 +160,10 @@ main{
 .turn-tag{font-size:9px;letter-spacing:.26em;color:var(--teal);margin-top:10px;min-height:12px}
 .side.active{border-color:rgba(255,122,26,.55);box-shadow:inset 0 0 0 1px rgba(255,122,26,.1),0 0 30px rgba(255,122,26,.05)}
 .side.active .side-label{color:var(--orange)}
-.log{font-size:10px;color:var(--dim);margin-top:10px;min-height:28px;letter-spacing:.06em}
-.hint{font-size:10px;color:var(--orange);margin-top:6px;min-height:26px;letter-spacing:.04em}
+.log{font-size:9px;color:var(--dim);margin-top:10px;min-height:44px;letter-spacing:.04em;line-height:1.65}
+.log div{opacity:.45}
+.log div.last{opacity:1;color:var(--ink)}
+.hint{font-size:9px;color:var(--orange);margin-top:10px;padding-top:8px;border-top:1px solid var(--line);min-height:26px;letter-spacing:.03em;line-height:1.5}
 
 .card{
   width:42px;height:56px;display:flex;align-items:center;justify-content:center;

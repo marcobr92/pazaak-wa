@@ -198,7 +198,7 @@ function renderHand() {
   const w = S.wasm;
   const hand = $('#hand');
   hand.replaceChildren();
-  const locked = w.pa_played() === 1;
+  const locked = w.pa_phase() === 1 && w.pa_turn() === 0 && w.pa_played() === 1;
   for (let i = 0; i < 4; i++) {
     const code = w.pa_hand(i);
     if (!code) {
@@ -270,9 +270,20 @@ function stand() {
   loop();
 }
 
+const LOG = [];
+
 function log(msg) {
+  LOG.push(msg);
+  if (LOG.length > 3) LOG.shift();
   const el = $('#log');
-  if (el) el.textContent = msg;
+  if (!el) return;
+  el.replaceChildren();
+  LOG.forEach((m, i) => {
+    const line = document.createElement('div');
+    line.textContent = m;
+    if (i === LOG.length - 1) line.className = 'last';
+    el.appendChild(line);
+  });
 }
 
 /* ── laço de turnos ──────────────────────────────────────────────────────── */
@@ -293,9 +304,10 @@ async function loop() {
         renderTable();
         const sw = w.pa_set_winner();
         const title = sw === 0 ? 'SET SEU' : sw === 1 ? 'SET DO OPONENTE' : 'EMPATE';
-        await flash(title, '');
+        await flash(title, `sets ${w.pa_sets_p()} — ${w.pa_sets_o()}`);
         w.pa_next_set();
         renderTable();
+        log(`set ${w.pa_set_no()} — compra de abertura`);
         continue;
       }
       if (phase === 0) {
@@ -315,6 +327,8 @@ async function loop() {
         }
         await wait(520);
         w.pa_ai_turn();
+        const act = w.pa_log();
+        log(act === 2 ? 'oponente jogou carta' : act === 3 ? 'oponente parou' : 'oponente comprou e encerrou');
         renderTable();
         await wait(380);
         continue;
@@ -396,6 +410,7 @@ function seedNow() {
 function prepareMatch(opp) {
   S.opp = opp;
   S.pending = -1;
+  LOG.length = 0;
   const w = S.wasm;
   for (let i = 0; i < 10; i++) {
     w.pa_set_deck(i, S.deck[i] || 0);
