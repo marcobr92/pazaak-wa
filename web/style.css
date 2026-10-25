@@ -251,6 +251,19 @@ main{
 .modal-body strong{color:var(--ink)}
 .c-plus{color:#8fb0ff}.c-minus{color:#ff9d96}.c-pm{color:var(--gold)}.c-gold{color:var(--gold)}
 
+/* ── espera pelo oponente ─────────────────────────────────────────────── */
+#view-game.waiting #side-p,
+#view-game.waiting .hand-wrap,
+#view-game.waiting .actions{
+  opacity:.3;filter:grayscale(.85);pointer-events:none;
+  transition:opacity .25s ease,filter .25s ease;
+}
+#view-game.waiting #side-p .side-label::after{
+  content:"aguardando";position:absolute;left:50%;top:14px;transform:translateX(-50%);
+  font-size:8px;letter-spacing:.24em;color:var(--dim);
+}
+#view-game.waiting #side-p{position:relative}
+
 /* ── barra de status ──────────────────────────────────────────────────── */
 .statusbar{
   position:fixed;left:0;right:0;bottom:0;z-index:30;

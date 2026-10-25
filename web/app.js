@@ -175,10 +175,11 @@ function renderTable() {
   pips($('#o-pips'), w.pa_sets_o());
 
   const setIdx = $('#set-index');
-  if (setIdx) {
-    const done = phase >= 2 ? w.pa_set_no() : w.pa_set_no() - 1;
-    setIdx.textContent = 'SET ' + done;
-  }
+  if (setIdx) setIdx.textContent = 'SET ' + w.pa_set_no();
+
+  const waiting = (phase === 0 || phase === 1) && turn === 1;
+  const gameView = $('#view-game');
+  if (gameView) gameView.classList.toggle('waiting', waiting);
 
   const tag = $('#turn-tag');
   if (tag) {
