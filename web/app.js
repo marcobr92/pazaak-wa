@@ -518,6 +518,29 @@ function saveDeck() {
   show('home');
 }
 
+/* ── unidade MAGI ativa (rodízio a cada 30s) ─────────────────────────────── */
+const MAGI = ['caspar', 'balthasar', 'melchior'];
+let magiIdx = Math.floor(Math.random() * MAGI.length);
+
+function applyMagi() {
+  const name = MAGI[magiIdx];
+  const label = $('#sys-unit');
+  if (label) label.textContent = name;
+  for (const el of document.querySelectorAll('.statusbar .unit')) {
+    el.classList.toggle('active', el.dataset.unit === name);
+  }
+}
+
+function startMagiCycle() {
+  applyMagi();
+  setInterval(() => {
+    let next = Math.floor(Math.random() * MAGI.length);
+    if (next === magiIdx) next = (next + 1) % MAGI.length; // troca sempre
+    magiIdx = next;
+    applyMagi();
+  }, 30000);
+}
+
 /* ── boot ────────────────────────────────────────────────────────────────── */
 function bind() {
   for (const btn of document.querySelectorAll('[data-mode]')) {
@@ -587,6 +610,7 @@ async function boot() {
     return;
   }
   bind();
+  startMagiCycle();
   show('home');
 }
 

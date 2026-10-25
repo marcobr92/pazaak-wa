@@ -248,12 +248,16 @@ main{
   border-top:1px solid var(--line);
 }
 .statusbar .right{margin-left:auto}
+.statusbar .unit{
+  display:inline-flex;align-items:center;gap:7px;
+  opacity:.38;transition:opacity .6s ease,color .6s ease;
+}
+.statusbar .unit.active{opacity:1;color:#7fe9dc}
+.statusbar .unit:not(.active) .beat{animation:none;opacity:.3;box-shadow:none;background:#3b4a4f}
 .beat{
   width:5px;height:5px;background:var(--teal);border-radius:50%;
   box-shadow:0 0 6px var(--teal);animation:beat 2.4s infinite;
 }
-.beat:nth-of-type(2){animation-delay:.4s}
-.beat:nth-of-type(3){animation-delay:.8s}
 @keyframes beat{0%,92%,100%{opacity:.25}95%{opacity:1}}
 
 @media (prefers-reduced-motion: reduce){
