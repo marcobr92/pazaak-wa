@@ -76,6 +76,7 @@ const S = {
   busy: false,
   pending: -1,
   deck: loadDeck(),
+  clock: { id: null, end: 0 },
 };
 
 function loadDeck() {
@@ -91,6 +92,63 @@ function loadDeck() {
 
 const $ = (sel) => document.querySelector(sel);
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+
+/* ── relógio do turno (10s, aviso a partir de 6s) ────────────────────────── */
+const TURN_MS = 10000;
+const WARN_MS = 6000;
+
+function stopClock() {
+  if (S.clock.id) { clearInterval(S.clock.id); S.clock.id = null; }
+  S.clock.end = 0;
+  const view = $('#view-game');
+  if (view) view.style.setProperty('--alert', '0');
+  const box = $('#turn-clock');
+  if (box) { box.classList.add('hidden'); box.classList.remove('urgent'); }
+  const fill = $('#clock-fill');
+  if (fill) fill.style.transform = 'scaleX(1)';
+}
+
+function startClock() {
+  stopClock();
+  const box = $('#turn-clock');
+  const view = $('#view-game');
+  if (!box) return;
+  box.classList.remove('hidden');
+  S.clock.end = performance.now() + TURN_MS;
+  S.clock.id = setInterval(() => {
+    const left = S.clock.end - performance.now();
+    const elapsed = TURN_MS - Math.max(0, left);
+    const fill = $('#clock-fill');
+    if (fill) fill.style.transform = `scaleX(${Math.max(0, left / TURN_MS)})`;
+    const label = $('#clock-label');
+    if (label) label.textContent = Math.max(0, Math.ceil(left / 1000)) + 's';
+    const alert = Math.max(0, Math.min(1, (elapsed - WARN_MS) / (TURN_MS - WARN_MS)));
+    if (view) view.style.setProperty('--alert', alert.toFixed(3));
+    box.classList.toggle('urgent', elapsed >= WARN_MS);
+    if (left <= 0) {
+      stopClock();
+      turnTimeout();
+    }
+  }, 100);
+}
+
+function turnTimeout() {
+  const w = S.wasm;
+  if (w.pa_phase() !== 1 || w.pa_turn() !== 0) return;
+  S.pending = -1;
+  w.pa_end_turn();
+  renderTable();
+  log('tempo esgotado — turno encerrado');
+  loop();
+}
+
+function aiDelay() {
+  const w = S.wasm;
+  const behind = w.pa_sets_o() < w.pa_sets_p() || w.pa_o_sum() < w.pa_p_sum();
+  let ms = 1500 + Math.random() * 1100;
+  if (behind) ms += 800 + Math.random() * 2000;
+  return Math.min(TURN_MS, Math.round(ms));
+}
 
 /* ── carregamento do wasm ────────────────────────────────────────────────── */
 async function loadWasm() {
@@ -180,6 +238,10 @@ function renderTable() {
   const waiting = (phase === 0 || phase === 1) && turn === 1;
   const gameView = $('#view-game');
   if (gameView) gameView.classList.toggle('waiting', waiting);
+
+  const myTurn = phase === 1 && turn === 0;
+  if (myTurn && !S.clock.id) startClock();
+  else if (!myTurn && S.clock.id) stopClock();
 
   const tag = $('#turn-tag');
   if (tag) {
@@ -322,8 +384,19 @@ async function loop() {
       if (phase === 2) {
         renderTable();
         const sw = w.pa_set_winner();
-        const title = sw === 0 ? 'SET SEU' : sw === 1 ? 'SET DO OPONENTE' : 'EMPATE';
-        await flash(title, `sets ${w.pa_sets_p()} — ${w.pa_sets_o()}`);
+        const name = S.opp && S.opp.name ? S.opp.name.split('·')[0].trim() : 'oponente';
+        let title, sub;
+        if (sw === 0) {
+          title = 'VOCÊ VENCEU ESSE SET';
+          sub = `você ${w.pa_sets_p()} de 3 · ${name} ${w.pa_sets_o()} de 3`;
+        } else if (sw === 1) {
+          title = `${name} VENCEU ESSE SET`;
+          sub = `você ${w.pa_sets_p()} de 3 · ${name} ${w.pa_sets_o()} de 3`;
+        } else {
+          title = 'SET EMPATADO';
+          sub = `ninguém pontuou · você ${w.pa_sets_p()} de 3 · ${name} ${w.pa_sets_o()} de 3`;
+        }
+        await flash(title, sub);
         w.pa_next_set();
         renderTable();
         log(`set ${w.pa_set_no()} — compra de abertura`);
@@ -344,7 +417,7 @@ async function loop() {
           S.busy = false;
           return;
         }
-        await wait(520);
+        await wait(aiDelay());
         w.pa_ai_turn();
         const act = w.pa_log();
         log(act === 2 ? 'oponente jogou carta' : act === 3 ? 'oponente parou' : 'oponente comprou e encerrou');
@@ -369,7 +442,7 @@ function flash(title, sub) {
   b.querySelector('.banner-sub').textContent = sub;
   b.querySelector('#banner-btn').classList.add('hidden');
   b.classList.remove('hidden');
-  return wait(1200).then(() => b.classList.add('hidden'));
+  return wait(1900).then(() => b.classList.add('hidden'));
 }
 
 function banner(title, sub, btnLabel, onBtn) {
@@ -390,7 +463,7 @@ function matchOver() {
 
   if (S.mode === 'campaign') {
     if (win) {
-      banner('FASE LIMPA', `${S.opp.name} derrotado`, 'PRÓXIMO', () => {
+      banner('FASE LIMPA', `${S.opp.name} derrotado · sets ${w.pa_sets_p()} de 3`, 'PRÓXIMO', () => {
         S.step++;
         if (S.step >= OPPONENTS.length) {
           banner('CAMPANHA CONCLUÍDA', 'os dez caíram', 'VOLTAR AO INÍCIO', () => goHome());
