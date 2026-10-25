@@ -72,21 +72,18 @@
       <button class="ghost small" data-back>◀ SAIR</button>
       <div class="opp-info">
         <span id="opp-name">—</span>
-        <span class="score-wrap">
-          <span class="score-cap">SETS · você — ele</span>
-          <span id="set-score" class="score">0 — 0</span>
-        </span>
       </div>
     </div>
 
     <div class="board">
       <div class="side" id="side-o">
-        <div class="side-label">OPONENTE</div>
+        <div class="side-label"><span>OPONENTE</span><span class="pips" id="o-pips"></span></div>
         <div id="o-cards" class="cards"></div>
         <div id="o-sum" class="sum">0</div>
       </div>
 
       <div class="center">
+        <div id="set-index" class="set-index">SET 0</div>
         <div class="center-label">ÚLTIMA COMPRA</div>
         <div id="last-card" class="last-card">—</div>
         <div id="turn-tag" class="turn-tag">—</div>
@@ -95,7 +92,7 @@
       </div>
 
       <div class="side" id="side-p">
-        <div class="side-label">VOCÊ</div>
+        <div class="side-label"><span>VOCÊ</span><span class="pips" id="p-pips"></span></div>
         <div id="p-cards" class="cards"></div>
         <div id="p-sum" class="sum">0</div>
       </div>

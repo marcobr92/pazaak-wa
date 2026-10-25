@@ -159,16 +159,34 @@ function renderTable() {
   const last = w.pa_last();
   $('#last-card').textContent = last > 0 ? last : '—';
 
-  const sets = `${w.pa_sets_p()} — ${w.pa_sets_o()}`;
-  $('#set-score').textContent = sets;
-
   const phase = w.pa_phase();
   const turn = w.pa_turn();
+
+  const pips = (el, n) => {
+    if (!el) return;
+    el.replaceChildren();
+    for (let i = 0; i < 3; i++) {
+      const d = document.createElement('span');
+      d.className = 'pip' + (i < n ? ' on' : '');
+      el.appendChild(d);
+    }
+  };
+  pips($('#p-pips'), w.pa_sets_p());
+  pips($('#o-pips'), w.pa_sets_o());
+
+  const setIdx = $('#set-index');
+  if (setIdx) {
+    const done = phase >= 2 ? w.pa_set_no() : w.pa_set_no() - 1;
+    setIdx.textContent = 'SET ' + done;
+  }
+
   const tag = $('#turn-tag');
   if (tag) {
+    const short = S.opp && S.opp.name ? S.opp.name.split('·')[0].trim() : 'oponente';
     tag.textContent =
       phase === 3 ? 'PARTIDA ENCERRADA' : phase === 2 ? 'SET ENCERRADO' :
-      turn === 0 ? 'SUA VEZ' : 'VEZ DO OPONENTE';
+      turn === 0 ? 'É A SUA VEZ' : `É A VEZ DO OPONENTE ${short}`;
+    tag.classList.toggle('mine', phase === 1 && turn === 0);
   }
   const sideP = $('#side-p');
   const sideO = $('#side-o');
