@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PAZAAK // WA</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="scanlines" aria-hidden="true"></div>
+
+<header class="topbar">
+  <div class="brand"><span class="mark">◈</span> PAZAAK <span class="dim">//</span> WA</div>
+  <div class="topbar-right">
+    <span class="sys">MAGI SYSTEM · 01</span>
+    <button id="btn-rules" class="ghost">REGRAS DO JOGO</button>
+  </div>
+</header>
+
+<main>
+  <!-- ── INÍCIO ───────────────────────────────────────────────────────────── -->
+  <section id="view-home" class="view">
+    <div class="home-head">
+      <h1>PAZAAK</h1>
+      <p class="sub">// simulação tática de cartas · terminal 01</p>
+    </div>
+
+    <div class="modes">
+      <button class="mode" data-mode="tutorial" data-num="01">
+        <span class="mode-num">01</span>
+        <span class="mode-title">APRENDA A JOGAR</span>
+        <span class="mode-desc">partida guiada, sem pressa</span>
+      </button>
+      <button class="mode" data-mode="campaign" data-num="02">
+        <span class="mode-num">02</span>
+        <span class="mode-title">CAMPANHA</span>
+        <span class="mode-desc">10 oponentes · ordem aleatória</span>
+      </button>
+      <button class="mode" data-mode="challenge" data-num="03">
+        <span class="mode-num">03</span>
+        <span class="mode-title">DESAFIO</span>
+        <span class="mode-desc">partidas infinitas até perder</span>
+      </button>
+    </div>
+
+    <button id="btn-deck" class="mode mode-wide" data-num="04">
+      <span class="mode-num">04</span>
+      <span class="mode-title">CRIAR SEU DECK</span>
+      <span class="mode-desc">dez cartas. escolha com cabeça.</span>
+    </button>
+
+    <p class="disclaimer">
+      Projeto de fã, não oficial, sem fins lucrativos. Pazaak, Star Wars e todos os elementos
+      relacionados pertencem à Lucasfilm / The Walt Disney Company. Nenhum recurso é vendido,
+      doado ou monetizado.
+    </p>
+  </section>
+
+  <!-- ── CAMPANHA ─────────────────────────────────────────────────────────── -->
+  <section id="view-campaign" class="view hidden">
+    <div class="section-head">
+      <button class="ghost small" data-back>◀ VOLTAR</button>
+      <h2 id="camp-title">CAMPANHA</h2>
+      <span id="camp-progress" class="dim"></span>
+    </div>
+    <ul id="ladder" class="ladder"></ul>
+  </section>
+
+  <!-- ── MESA ─────────────────────────────────────────────────────────────── -->
+  <section id="view-game" class="view hidden">
+    <div class="game-top">
+      <button class="ghost small" data-back>◀ SAIR</button>
+      <div class="opp-info">
+        <span id="opp-name">—</span>
+        <span id="set-score" class="score">0 — 0</span>
+      </div>
+    </div>
+
+    <div class="board">
+      <div class="side" id="side-o">
+        <div class="side-label">OPONENTE</div>
+        <div id="o-cards" class="cards"></div>
+        <div id="o-sum" class="sum">0</div>
+      </div>
+
+      <div class="center">
+        <div class="center-label">ÚLTIMA COMPRA</div>
+        <div id="last-card" class="last-card">—</div>
+        <div id="turn-tag" class="turn-tag">—</div>
+        <div id="log" class="log">—</div>
+        <div id="hint" class="hint">—</div>
+      </div>
+
+      <div class="side" id="side-p">
+        <div class="side-label">VOCÊ</div>
+        <div id="p-cards" class="cards"></div>
+        <div id="p-sum" class="sum">0</div>
+      </div>
+    </div>
+
+    <div class="hand-wrap">
+      <div class="hand-label">SUA MÃO</div>
+      <div id="hand" class="hand"></div>
+    </div>
+
+    <div class="actions">
+      <button id="btn-end" class="act">ENCERRAR TURNO</button>
+      <button id="btn-stand" class="act act-alt">PARAR</button>
+    </div>
+
+    <div id="banner" class="banner hidden">
+      <div class="banner-title"></div>
+      <div class="banner-sub"></div>
+      <button class="act" id="banner-btn">CONTINUAR</button>
+    </div>
+  </section>
+
+  <!-- ── DECK ─────────────────────────────────────────────────────────────── -->
+  <section id="view-deck" class="view hidden">
+    <div class="section-head">
+      <button class="ghost small" data-back>◀ VOLTAR</button>
+      <h2>CRIAR SEU DECK</h2>
+      <span id="deck-count" class="dim">0 / 10</span>
+    </div>
+    <p class="deck-help">Dez cartas. Máximo de duas cópias de cada tipo. O deck vale para todos os modos.</p>
+    <div id="deck-grid" class="deck-grid"></div>
+    <div class="deck-footer">
+      <button id="btn-deck-save" class="act" disabled>SALVAR DECK</button>
+      <button id="btn-deck-reset" class="act act-alt">RESTAURAR PADRÃO</button>
+    </div>
+  </section>
+</main>
+
+<!-- ── REGRAS ──────────────────────────────────────────────────────────────── -->
+<div id="modal-rules" class="modal hidden">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2>REGRAS DO JOGO</h2>
+      <button id="btn-rules-close" class="ghost small">FECHAR ✕</button>
+    </div>
+    <div class="modal-body">
+      <h3>Objetivo</h3>
+      <p>Chegar a 20, ou o mais perto possível sem estourar. Quem ganha <strong>3 sets</strong> ganha a partida.</p>
+
+      <h3>Baralho principal</h3>
+      <p>40 cartas: quatro de cada valor, de 1 a 10. Verde. Compra-se uma por turno.</p>
+
+      <h3>Baralho lateral</h3>
+      <p>Dez cartas escolhidas por você. No início da partida, <strong>quatro</strong> são sorteadas e formam sua mão. Cada carta da mão só pode ser usada <strong>uma vez por partida</strong> — e a mão vale para todos os sets.</p>
+
+      <h3>Turno</h3>
+      <ol>
+        <li>Você compra uma carta do baralho principal.</li>
+        <li>Pode jogar <strong>uma</strong> carta da mão (opcional).</li>
+        <li>Depois, escolhe <strong>encerrar</strong> (compra de novo no próximo turno) ou <strong>parar</strong>.</li>
+      </ol>
+      <p>Se passar de 20 no fim do turno, estoura e perde o set. Uma carta negativa jogada depois da compra ainda salva o turno.</p>
+
+      <h3>Tipos de carta</h3>
+      <ul>
+        <li><b class="c-plus">+</b> soma o valor.</li>
+        <li><b class="c-minus">−</b> subtrai o valor.</li>
+        <li><b class="c-pm">±</b> você decide, na hora de jogar, se soma ou subtrai.</li>
+        <li><b class="c-gold">FLIP</b> inverte o sinal de todas as cartas 2 e 4 (ou 3 e 6) na mesa, dos dois lados.</li>
+        <li><b class="c-gold">2×</b> dobra a última carta que você comprou do baralho principal.</li>
+        <li><b class="c-gold">TIE</b> vale ±1 e, se houver empate, o desempate é seu.</li>
+      </ul>
+
+      <h3>Fim do set</h3>
+      <ul>
+        <li>Ganha quem tiver o maior valor sem estourar, depois que os dois param.</li>
+        <li>Estourou, perde o set.</li>
+        <li>Nove cartas na mesa sem estourar: vitória automática.</li>
+        <li>Empate não pontua: joga-se outro set. Quem começou o set empatado começa o próximo.</li>
+      </ul>
+
+      <h3>Aviso</h3>
+      <p>Fan game sem fins lucrativos. Pazaak e Star Wars pertencem à Lucasfilm / Disney. Este projeto
+      não vende, não aceita doação e não exibe anúncio.</p>
+    </div>
+  </div>
+</div>
+
+<footer class="statusbar">
+  <span class="beat"></span><span>CASPAR</span>
+  <span class="beat"></span><span>BALTHASAR</span>
+  <span class="beat"></span><span>MELCHIOR</span>
+  <span class="right">SYNC 100 · LINK 01</span>
+</footer>
+
+<script src="wasm.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
