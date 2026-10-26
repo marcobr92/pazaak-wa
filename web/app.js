@@ -374,6 +374,7 @@ async function loop() {
   try {
     let guard = 0;
     while (guard++ < 200) {
+      if (S.view !== 'game') return;
       const w = S.wasm;
       const phase = w.pa_phase();
 
@@ -530,9 +531,11 @@ function startChallengeMatch() {
 }
 
 function goHome() {
-  show('home');
+  stopClock();
+  S.pending = -1;
   S.mode = null;
   S.opp = null;
+  show('home');
 }
 
 /* ── campanha ────────────────────────────────────────────────────────────── */
@@ -667,6 +670,7 @@ function bind() {
   }
 
   $('#btn-deck').addEventListener('click', openDeck);
+  $('#btn-home').addEventListener('click', goHome);
   $('#btn-deck-save').addEventListener('click', saveDeck);
   $('#btn-deck-reset').addEventListener('click', () => {
     draft.clear();

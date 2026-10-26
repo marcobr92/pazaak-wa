@@ -43,7 +43,13 @@ main,header{position:relative;z-index:1}
   background:linear-gradient(180deg,#0a0f12,#070a0c);
   position:sticky;top:0;z-index:20;
 }
-.brand{color:var(--orange);letter-spacing:.22em;font-weight:700;font-size:13px}
+.brand{
+  color:var(--orange);letter-spacing:.22em;font-weight:700;font-size:13px;
+  background:none;border:none;padding:0;cursor:pointer;font-family:inherit;
+  transition:color .15s,text-shadow .15s;
+}
+.brand:hover{color:var(--amber);text-shadow:0 0 14px rgba(255,122,26,.45)}
+.brand:focus-visible{outline:1px solid var(--orange);outline-offset:4px}
 .brand .mark{color:var(--teal);margin-right:6px}
 .topbar-right{display:flex;align-items:center;gap:16px}
 .sys{color:var(--dim);font-size:10px;letter-spacing:.25em}
