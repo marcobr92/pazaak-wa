@@ -152,6 +152,8 @@ const sfx = {
   },
 
   click() { this.tone(190, 0.045, 'square', 0.025); },
+  select() { this.seq([440, 660], 0.07, 'triangle', 0.04); },
+  boot() { this.seq([262, 392, 523], 0.12, 'sine', 0.035); },
   card() { this.tone(330, 0.05, 'triangle', 0.045); this.tone(247, 0.07, 'triangle', 0.035, 0.045); },
   coin() { this.tone(900, 0.05, 'square', 0.03); this.tone(1360, 0.09, 'sine', 0.025, 0.02); },
   setWin() { this.seq([523, 784], 0.09, 'triangle', 0.05); },
@@ -165,6 +167,26 @@ const sfx = {
     try { localStorage.setItem('pazaak.mute', this.muted ? '1' : '0'); } catch (e) { /* ok */ }
     this.paintMute();
     if (!this.muted) this.click();
+  },
+
+  /* O navegador bloqueia áudio antes do primeiro gesto. Se o contexto nascer
+     suspenso, o som de abertura fica armado para o primeiro clique/tecla. */
+  bootOnLoad() {
+    if (this.booted) return 'ja';
+    this.booted = true;
+    const ctx = this.ctxGet();
+    if (!ctx || ctx.state !== 'running') {
+      const arm = () => {
+        window.removeEventListener('pointerdown', arm);
+        window.removeEventListener('keydown', arm);
+        this.boot();
+      };
+      window.addEventListener('pointerdown', arm, { once: true });
+      window.addEventListener('keydown', arm, { once: true });
+      return 'armado';
+    }
+    this.boot();
+    return 'tocado';
   },
 
   paintMute() {
@@ -1161,7 +1183,10 @@ function bind() {
 
   $('#btn-mute').addEventListener('click', () => sfx.toggle());
   document.addEventListener('click', (e) => {
-    if (e.target.closest('button')) sfx.click();
+    const btn = e.target.closest('button');
+    if (!btn || btn.id === 'btn-mute') return;
+    if (btn.dataset.mode || btn.id === 'btn-deck') sfx.select();
+    else sfx.click();
   });
   $('#btn-rules').addEventListener('click', () => $('#modal-rules').classList.remove('hidden'));
   $('#btn-rules-close').addEventListener('click', () => $('#modal-rules').classList.add('hidden'));
@@ -1214,6 +1239,7 @@ async function boot() {
   }
   bind();
   sfx.init();
+  sfx.bootOnLoad();
   magiStart();
   show('home');
 }
