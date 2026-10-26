@@ -88,6 +88,17 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 }
 .ghost:hover{border-color:var(--orange);color:var(--orange);background:rgba(255,122,26,.09)}
 .ghost.small{padding:4px 10px;font-size:9px}
+.audio-menu{
+  position:fixed;z-index:75;display:flex;flex-direction:column;min-width:158px;
+  background:var(--panel);border:1px solid var(--line2);
+  box-shadow:0 14px 34px rgba(0,0,0,.7);
+}
+.audio-menu button{
+  padding:10px 13px;text-align:left;font-size:9px;letter-spacing:.18em;
+  color:var(--ink);border-bottom:1px solid var(--line);
+}
+.audio-menu button:last-child{border-bottom:none}
+.audio-menu button:hover{color:var(--orange);background:rgba(255,122,26,.08)}
 
 /* ── views ────────────────────────────────────────────────────────────── */
 main{

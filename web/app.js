@@ -195,6 +195,16 @@ const sfx = {
     btn.textContent = this.muted ? '✕' : '♪';
     btn.classList.toggle('muted', this.muted);
     btn.setAttribute('aria-label', this.muted ? 'som desligado' : 'som ligado');
+    const tog = $('#audio-menu [data-audio="toggle"]');
+    if (tog) tog.textContent = this.muted ? 'ATIVAR SOM' : 'SILENCIAR';
+  },
+
+  /* Teste toca mesmo se estiver mudo, e devolve o estado depois. */
+  testThree() {
+    const wasMuted = this.muted;
+    this.muted = false;
+    for (let i = 0; i < 3; i++) setTimeout(() => this.click(), i * 230);
+    setTimeout(() => { this.muted = wasMuted; }, 900);
   },
 };
 
@@ -915,6 +925,31 @@ function startChallengeMatch() {
   prepareMatch(opp);
 }
 
+function openAudioMenu() {
+  const menu = $('#audio-menu');
+  const btn = $('#btn-mute');
+  if (!menu || !btn) return;
+  const r = btn.getBoundingClientRect();
+  menu.classList.remove('hidden');
+  const w = menu.offsetWidth || 158;
+  const left = Math.max(8, Math.min(window.innerWidth - w - 8, r.right - w));
+  menu.style.left = Math.round(left) + 'px';
+  menu.style.top = Math.round(r.bottom + 8) + 'px';
+  sfx.paintMute();
+}
+
+function closeAudioMenu() {
+  const menu = $('#audio-menu');
+  if (menu) menu.classList.add('hidden');
+}
+
+function toggleAudioMenu() {
+  const menu = $('#audio-menu');
+  if (!menu) return;
+  if (menu.classList.contains('hidden')) openAudioMenu();
+  else closeAudioMenu();
+}
+
 function goHome() {
   stopClock();
   S.pending = -1;
@@ -1181,10 +1216,27 @@ function bind() {
     body: 'trava o seu total neste set. você não compra mais cartas — o oponente segue jogando até parar ou estourar.',
   }));
 
-  $('#btn-mute').addEventListener('click', () => sfx.toggle());
+  $('#btn-mute').addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleAudioMenu();
+  });
+  $('#audio-menu').addEventListener('click', (e) => {
+    const item = e.target.closest('[data-audio]');
+    if (!item) return;
+    e.stopPropagation();
+    if (item.dataset.audio === 'toggle') sfx.toggle();
+    else sfx.testThree();
+    closeAudioMenu();
+  });
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('#btn-mute') && !e.target.closest('#audio-menu')) closeAudioMenu();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeAudioMenu();
+  });
   document.addEventListener('click', (e) => {
     const btn = e.target.closest('button');
-    if (!btn || btn.id === 'btn-mute') return;
+    if (!btn || btn.id === 'btn-mute' || btn.closest('#audio-menu')) return;
     if (btn.dataset.mode || btn.id === 'btn-deck') sfx.select();
     else sfx.click();
   });
