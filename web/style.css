@@ -230,6 +230,16 @@ main{
 .log div{opacity:.45}
 .log div.last{opacity:1;color:var(--ink)}
 .hint{font-size:9px;color:var(--orange);margin-top:10px;padding-top:8px;border-top:1px solid var(--line);min-height:26px;letter-spacing:.03em;line-height:1.5}
+.hint.guided{
+  font-size:11px;color:var(--amber);letter-spacing:.02em;line-height:1.6;
+  border:1px solid rgba(255,180,84,.35);background:rgba(255,122,26,.07);
+  padding:10px 12px;margin-top:12px;
+}
+.guide{animation:guidePulse 1.5s ease-in-out infinite}
+@keyframes guidePulse{
+  0%,100%{filter:drop-shadow(0 0 2px rgba(255,122,26,.35))}
+  50%{filter:drop-shadow(0 0 9px rgba(255,122,26,.95))}
+}
 
 .card{
   width:42px;height:56px;display:flex;align-items:center;justify-content:center;

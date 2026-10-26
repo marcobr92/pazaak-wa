@@ -22,7 +22,7 @@ Regras completas, incluindo cartas avançadas: botão **REGRAS DO JOGO** na tela
 
 | modo | o que é |
 |---|---|
-| **Aprenda a jogar** | partida contra um oponente fácil, com dicas na tela |
+| **Aprenda a jogar** | aula determinística: deck, ordem das cartas e oponente fixos, com o próximo clique destacado na tela |
 | **Campanha** | dez oponentes com decks próprios, ordem sorteada a cada partida |
 | **Desafio** | partidas seguidas até a primeira derrota |
 | **Criar seu deck** | dez cartas, no máximo duas de cada tipo; fica salvo no navegador |

@@ -78,6 +78,21 @@ const OPPONENT_LINES = {
   'MELCHIOR': 'Núcleo lógico. Não sente nada, o que é uma vantagem injusta.',
 };
 
+/* ── tutorial: semente, decks e oponente fixos ───────────────────────────── */
+const TUTORIAL = {
+  seed: 626,
+  deck: [
+    C(T.PLUS, 4), C(T.PLUS, 2), C(T.MINUS, 3), C(T.PM, 2), C(T.PLUS, 5),
+    C(T.MINUS, 1), C(T.PLUS, 1), C(T.MINUS, 2), C(T.PLUS, 3), C(T.PM, 1),
+  ],
+  oppDeck: [
+    C(T.PLUS, 1), C(T.PLUS, 2), C(T.PLUS, 3), C(T.PLUS, 4), C(T.MINUS, 1),
+    C(T.MINUS, 2), C(T.PM, 1), C(T.PM, 2), C(T.PLUS, 5), C(T.MINUS, 3),
+  ],
+};
+
+const TUTORIAL_OPP = { name: 'K-7 · FERRO-VELHO', tag: 'instrutor', diff: 0, deck: TUTORIAL.oppDeck };
+
 /* ── estado da tela ──────────────────────────────────────────────────────── */
 const S = {
   wasm: null,
@@ -538,7 +553,9 @@ function renderTable() {
   if (gameView) gameView.classList.toggle('waiting', waiting);
 
   const myTurn = phase === 1 && turn === 0;
-  if (myTurn && !S.clock.id) startClock();
+  if (S.mode === 'tutorial') {
+    if (S.clock.id) stopClock();
+  } else if (myTurn && !S.clock.id) startClock();
   else if (!myTurn && S.clock.id) stopClock();
 
   const tag = $('#turn-tag');
@@ -556,21 +573,55 @@ function renderTable() {
 
   renderHand();
   updateActions();
+  renderGuide(phase, turn);
+}
 
+/* ── tutorial: mensagem + destaque do próximo clique ─────────────────────── */
+let guideTarget = null;
+
+function setGuide(el) {
+  if (guideTarget === el) return;
+  if (guideTarget) guideTarget.classList.remove('guide');
+  guideTarget = el;
+  if (el) el.classList.add('guide');
+}
+
+function renderGuide(phase, turn) {
   const hint = $('#hint');
-  if (hint) {
-    let txt = '';
-    if (S.mode === 'tutorial') {
-      if (phase === 3) txt = '';
-      else if (phase === 0 && turn === 0) txt = 'comprando…';
-      else if (phase === 1 && turn === 0) {
-        txt = w.pa_played() === 1
-          ? 'carta jogada. encerrar turno compra outra; parar guarda o total.'
-          : 'some com a mão se precisar, ou encerre o turno. passar de 20 estoura.';
-      } else txt = 'o oponente joga. observe o total dele.';
+  const tut = S.mode === 'tutorial';
+  hint?.classList.toggle('guided', tut);
+  if (!tut) { setGuide(null); if (hint) hint.textContent = ''; return; }
+
+  const w = S.wasm;
+  let text = '';
+  let target = null;
+
+  if (w.pa_set_no() > 1) {
+    text = 'A partir daqui é com você: mesmas regras, sem dica.';
+  } else if (phase === 3) {
+    text = '';
+  } else if (phase === 2) {
+    text = 'Set encerrado. Quem chegou mais perto de 20 sem estourar leva o ponto.';
+  } else if (phase === 0 && turn === 1) {
+    text = 'Agora o oponente. Ele compra sozinho — repare no total dele.';
+    target = $('#side-o');
+  } else if (phase === 1 && turn === 0) {
+    if (w.pa_played() === 1) {
+      text = 'Carta jogada. Encerrar compra outra; parar trava o total.';
+      target = $('#btn-stand');
+    } else if (w.pa_p_sum() === 16) {
+      text = '16 no total. O +4 da sua mão fecha exatamente em 20 — e 20 para sozinho. Clique nele.';
+      target = document.querySelector('#hand .card[data-code="4"]');
+    } else {
+      text = 'Você comprou uma carta. Encerrar o turno compra outra; parar trava o total.';
+      target = $('#btn-end');
     }
-    hint.textContent = txt;
+  } else {
+    text = 'Um turno: compra uma carta, opcionalmente joga uma da mão, e para ou encerra.';
   }
+
+  if (hint) hint.textContent = text;
+  setGuide(target);
 }
 
 function renderHand() {
@@ -588,6 +639,7 @@ function renderHand() {
       continue;
     }
     const el = cardEl(code);
+    el.dataset.code = String(code);
     attachTip(el, () => cardTip(code), { tabbable: true });
     if (locked) {
       el.classList.add('used');
@@ -889,7 +941,8 @@ function resolveCoin(pick) {
 function startWithFirst(first) {
   if (S.view !== 'game' || !S.opp) return;
   const w = S.wasm;
-  w.pa_start_match(seedNow(), S.opp.diff, first);
+  const seed = S.mode === 'tutorial' ? TUTORIAL.seed : seedNow();
+  w.pa_start_match(seed, S.opp.diff, first);
   renderTable();
   log('set 1 — ' + S.opp.name);
   loop();
@@ -901,15 +954,17 @@ function prepareMatch(opp) {
   S.coinPending = false;
   S.reentry = false;
   LOG.length = 0;
+  const tut = S.mode === 'tutorial';
   const w = S.wasm;
   for (let i = 0; i < 10; i++) {
-    w.pa_set_deck(i, S.deck[i] || 0);
-    w.pa_set_opp_deck(i, opp.deck[i] || 0);
+    w.pa_set_deck(i, tut ? TUTORIAL.deck[i] : (S.deck[i] || 0));
+    w.pa_set_opp_deck(i, tut ? TUTORIAL.oppDeck[i] : (opp.deck[i] || 0));
   }
   $('#opp-name').textContent = opp.name;
   show('game');
   blankTable();
-  openCoin();
+  if (tut) startWithFirst(0);
+  else openCoin();
 }
 
 function startCampaignMatch() {
@@ -1166,7 +1221,7 @@ function bind() {
       const mode = btn.dataset.mode;
       if (mode === 'tutorial') {
         S.mode = 'tutorial';
-        prepareMatch(OPPONENTS[0]);
+        prepareMatch(TUTORIAL_OPP);
       } else if (mode === 'campaign') {
         startCampaign();
       } else if (mode === 'challenge') {
