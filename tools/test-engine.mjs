@@ -1,7 +1,13 @@
 // Teste de fumaça do motor: joga partidas inteiras sem navegador e confere invariantes.
+// Uso: node tools/test-engine.mjs [caminho-do-wasm]
 import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const bytes = readFileSync(new URL('../web/pazaak.wasm', import.meta.url));
+const target = process.argv[2]
+  ? resolve(process.argv[2])
+  : fileURLToPath(new URL('../web/pazaak.wasm', import.meta.url));
+const bytes = readFileSync(target);
 const { instance } = await WebAssembly.instantiate(bytes, {});
 const w = instance.exports;
 
@@ -84,5 +90,6 @@ for (let m = 0; m < 200; m++) {
   if (w.pa_match_winner() === 0) wins++;
 }
 
+console.log(`wasm: ${target}`);
 console.log(`partidas: ${matches}  sets: ${sets}  vitórias do jogador: ${wins}`);
 console.log('invariantes: ok');
