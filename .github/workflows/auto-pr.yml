@@ -25,22 +25,21 @@ jobs:
       - name: garantir referência da main
         run: git fetch origin main --depth=50
 
-      - name: abrir PR de develop para main se não existir
+      - name: abrir ou atualizar PR de develop para main
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          existente=$(gh pr list --base main --head develop --state open --json number --jq '.[0].number')
-          if [ -n "$existente" ]; then
-            echo "PR #$existente já está aberto — os novos commits entram nele automaticamente."
-            exit 0
-          fi
-
           total=$(git rev-list --count origin/main..HEAD)
           commits=$(git log --oneline origin/main..HEAD | head -25)
           corpo=$(printf 'PR automático de `develop` para `main`.\n\nEste PR **acumula** os commits: a cada push em `develop` ele é atualizado, sem abrir outro.\n\n**%s commits**\n\n```\n%s\n```\n\nO check `motor wasm` precisa passar antes do merge.' "$total" "$commits")
+          titulo="develop → main ($total commits)"
 
-          gh pr create \
-            --base main \
-            --head develop \
-            --title "develop → main ($total commits)" \
-            --body "$corpo"
+          existente=$(gh pr list --base main --head develop --state open --json number --jq '.[0].number')
+
+          if [ -n "$existente" ]; then
+            gh pr edit "$existente" --title "$titulo" --body "$corpo"
+            echo "PR #$existente atualizado com $total commits."
+            exit 0
+          fi
+
+          gh pr create --base main --head develop --title "$titulo" --body "$corpo"
