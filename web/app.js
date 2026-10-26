@@ -89,6 +89,7 @@ const S = {
   streak: 0,
   busy: false,
   reentry: false,
+  paused: false,
   pending: -1,
   coinPending: false,
   deck: loadDeck(),
@@ -108,6 +109,72 @@ function loadDeck() {
 
 const $ = (sel) => document.querySelector(sel);
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+
+/* ── som sintetizado (sem arquivo, sem licença, alguns bytes de código) ──── */
+const sfx = {
+  ctx: null,
+  muted: false,
+
+  init() {
+    try { this.muted = localStorage.getItem('pazaak.mute') === '1'; } catch (e) { /* ok */ }
+    this.paintMute();
+  },
+
+  ctxGet() {
+    if (!this.ctx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return null;
+      this.ctx = new AC();
+    }
+    if (this.ctx.state === 'suspended') this.ctx.resume();
+    return this.ctx;
+  },
+
+  tone(freq, dur, type = 'square', vol = 0.04, delay = 0) {
+    if (this.muted) return;
+    const ctx = this.ctxGet();
+    if (!ctx) return;
+    const t0 = ctx.currentTime + delay;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, t0);
+    gain.gain.setValueAtTime(0.0001, t0);
+    gain.gain.linearRampToValueAtTime(vol, t0 + 0.012);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(t0);
+    osc.stop(t0 + dur + 0.03);
+  },
+
+  seq(notes, step, type, vol) {
+    notes.forEach((f, i) => this.tone(f, step * 1.4, type, vol, i * step));
+  },
+
+  click() { this.tone(190, 0.045, 'square', 0.025); },
+  card() { this.tone(330, 0.05, 'triangle', 0.045); this.tone(247, 0.07, 'triangle', 0.035, 0.045); },
+  coin() { this.tone(900, 0.05, 'square', 0.03); this.tone(1360, 0.09, 'sine', 0.025, 0.02); },
+  setWin() { this.seq([523, 784], 0.09, 'triangle', 0.05); },
+  setLose() { this.seq([392, 262], 0.11, 'sawtooth', 0.04); },
+  tie() { this.tone(440, 0.18, 'sine', 0.045); },
+  matchWin() { this.seq([523, 659, 784, 1046], 0.11, 'triangle', 0.05); },
+  matchLose() { this.seq([392, 330, 262, 196], 0.13, 'sawtooth', 0.04); },
+
+  toggle() {
+    this.muted = !this.muted;
+    try { localStorage.setItem('pazaak.mute', this.muted ? '1' : '0'); } catch (e) { /* ok */ }
+    this.paintMute();
+    if (!this.muted) this.click();
+  },
+
+  paintMute() {
+    const btn = $('#btn-mute');
+    if (!btn) return;
+    btn.textContent = this.muted ? '✕' : '♪';
+    btn.classList.toggle('muted', this.muted);
+    btn.setAttribute('aria-label', this.muted ? 'som desligado' : 'som ligado');
+  },
+};
 
 /* ── relógio do turno (10s, aviso a partir de 6s, pausável) ──────────────── */
 const TURN_MS = 10000;
@@ -130,15 +197,15 @@ function clockPaint(left) {
 function clockPauseBtn() {
   const btn = $('#btn-pause');
   if (!btn) return;
-  const paused = S.clock.paused === true;
-  btn.textContent = paused ? '▶' : 'II';
-  btn.classList.toggle('paused', paused);
-  btn.setAttribute('aria-label', paused ? 'retomar o tempo' : 'pausar o tempo');
+  btn.textContent = S.paused ? '▶' : 'II';
+  btn.classList.toggle('paused', S.paused);
+  btn.setAttribute('aria-label', S.paused ? 'retomar o jogo' : 'pausar o jogo');
 }
 
 function clockRun() {
   if (S.clock.id) clearInterval(S.clock.id);
   S.clock.id = setInterval(() => {
+    if (S.paused) return;
     const left = S.clock.end - performance.now();
     clockPaint(left);
     if (left <= 0) {
@@ -152,14 +219,12 @@ function stopClock() {
   if (S.clock.id) { clearInterval(S.clock.id); S.clock.id = null; }
   S.clock.end = 0;
   S.clock.left = TURN_MS;
-  S.clock.paused = false;
   const view = $('#view-game');
   if (view) view.style.setProperty('--alert', '0');
   const box = $('#turn-clock');
   if (box) { box.classList.add('hidden'); box.classList.remove('urgent'); }
   const fill = $('#clock-fill');
   if (fill) fill.style.transform = 'scaleX(1)';
-  clockPauseBtn();
 }
 
 function startClock() {
@@ -167,26 +232,42 @@ function startClock() {
   const box = $('#turn-clock');
   if (!box) return;
   box.classList.remove('hidden');
-  S.clock.paused = false;
   S.clock.left = TURN_MS;
   S.clock.end = performance.now() + TURN_MS;
   clockPaint(TURN_MS);
-  clockRun();
+  if (!S.paused) clockRun();
+}
+
+function setPaused(on) {
+  if (S.paused === on) return;
+  S.paused = on;
+  const c = S.clock;
+  if (on) {
+    c.wasRunning = !!c.id;
+    if (c.id) {
+      c.left = Math.max(0, c.end - performance.now());
+      clearInterval(c.id);
+      c.id = null;
+    }
+  } else {
+    if (c.wasRunning && !$('#turn-clock').classList.contains('hidden')) {
+      c.end = performance.now() + c.left;
+      clockRun();
+    }
+    c.wasRunning = false;
+    loop();
+  }
   clockPauseBtn();
 }
 
 function togglePause() {
-  if (!S.clock.id && !S.clock.paused) return;
-  if (S.clock.paused) {
-    S.clock.paused = false;
-    S.clock.end = performance.now() + S.clock.left;
-    clockRun();
-  } else {
-    S.clock.left = Math.max(0, S.clock.end - performance.now());
-    S.clock.paused = true;
-    if (S.clock.id) { clearInterval(S.clock.id); S.clock.id = null; }
-  }
-  clockPauseBtn();
+  if (S.view !== 'game' || !S.wasm) return;
+  if (S.wasm.pa_phase() === 3) return;
+  setPaused(!S.paused);
+}
+
+async function pauseGate() {
+  while (S.paused && S.view === 'game') await wait(120);
 }
 
 function turnTimeout() {
@@ -492,7 +573,7 @@ function updateActions() {
   $('#btn-end').disabled = !mine || S.pending >= 0;
   $('#btn-stand').disabled = !mine || S.pending >= 0;
   const pause = $('#btn-pause');
-  if (pause) pause.disabled = !mine;
+  if (pause) pause.disabled = S.view !== 'game' || w.pa_phase() === 3;
   clockPauseBtn();
   const panel = $('#sign-panel');
   if (panel) panel.classList.toggle('hidden', S.pending < 0);
@@ -517,6 +598,7 @@ function playCard(i, sign) {
   S.pending = -1;
   const ok = w.pa_play_hand(i, sign);
   if (!ok) { renderTable(); return; }
+  sfx.card();
   renderTable();
   if (w.pa_p_sum() === 20 || w.pa_p_n() >= 9) { setTimeout(() => stand(), 450); return; }
   updateActions();
@@ -563,6 +645,7 @@ async function loop() {
   try {
     for (;;) {
       if (S.view !== 'game') return;
+      await pauseGate();
       const w = S.wasm;
       const phase = w.pa_phase();
 
@@ -576,12 +659,15 @@ async function loop() {
         if (sw === 0) {
           title = 'VOCÊ VENCEU ESSE SET';
           sub = `você ${w.pa_sets_p()} de 3 · ${name} ${w.pa_sets_o()} de 3`;
+          sfx.setWin();
         } else if (sw === 1) {
           title = `${name} VENCEU ESSE SET`;
           sub = `você ${w.pa_sets_p()} de 3 · ${name} ${w.pa_sets_o()} de 3`;
+          sfx.setLose();
         } else {
           title = 'SET EMPATADO';
           sub = `ninguém pontuou · você ${w.pa_sets_p()} de 3 · ${name} ${w.pa_sets_o()} de 3`;
+          sfx.tie();
         }
         await flash(title, sub);
         if (S.view !== 'game') return;
@@ -601,8 +687,10 @@ async function loop() {
         }
         await wait(aiDelay());
         if (S.view !== 'game') return;
+        await pauseGate();
         w.pa_ai_turn();
         const act = w.pa_log();
+        if (act === 2) sfx.card();
         log(act === 2 ? 'oponente jogou carta' : act === 3 ? 'oponente parou' : 'oponente comprou e encerrou');
         renderTable();
         await wait(380);
@@ -648,6 +736,7 @@ function banner(title, sub, btnLabel, onBtn) {
 function matchOver() {
   const w = S.wasm;
   const win = w.pa_match_winner() === 0;
+  if (win) sfx.matchWin(); else sfx.matchLose();
   renderTable();
 
   if (S.mode === 'campaign') {
@@ -748,6 +837,7 @@ function resolveCoin(pick) {
 
   const side = Math.random() < 0.5 ? 0 : 1; // 0 = cara (república), 1 = coroa (império)
   const won = side === pick;
+  sfx.coin();
 
   coin.style.transform = `rotateY(${5 * 360 + (side === 1 ? 180 : 0)}deg)`;
   line.textContent = 'girando…';
@@ -1069,6 +1159,10 @@ function bind() {
     body: 'trava o seu total neste set. você não compra mais cartas — o oponente segue jogando até parar ou estourar.',
   }));
 
+  $('#btn-mute').addEventListener('click', () => sfx.toggle());
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('button')) sfx.click();
+  });
   $('#btn-rules').addEventListener('click', () => $('#modal-rules').classList.remove('hidden'));
   $('#btn-rules-close').addEventListener('click', () => $('#modal-rules').classList.add('hidden'));
   $('#modal-rules').addEventListener('click', (e) => {
@@ -1119,6 +1213,7 @@ async function boot() {
     return;
   }
   bind();
+  sfx.init();
   magiStart();
   show('home');
 }
