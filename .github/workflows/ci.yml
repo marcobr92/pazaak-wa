@@ -1,0 +1,50 @@
+name: ci
+
+on:
+  push:
+    branches: [develop, main]
+  pull_request:
+    branches: [develop, main]
+
+jobs:
+  motor:
+    name: motor wasm
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: rust + alvo wasm
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: compilar engine
+        working-directory: engine
+        run: cargo build --release --target wasm32-unknown-unknown
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: testar wasm recém-compilado
+        run: node tools/test-engine.mjs engine/target/wasm32-unknown-unknown/release/pazaak_engine.wasm
+
+      - name: testar wasm commitado
+        run: node tools/test-engine.mjs web/pazaak.wasm
+
+      - name: orçamento de tamanho
+        run: |
+          size=$(stat -c%s web/pazaak.wasm)
+          echo "web/pazaak.wasm = $size bytes"
+          if [ "$size" -gt 12288 ]; then
+            echo "::error::wasm passou de 12 KB ($size bytes). A meta do projeto é binário pequeno."
+            exit 1
+          fi
+
+      - name: base64 em dia
+        run: |
+          b64=$(base64 -w0 web/pazaak.wasm)
+          current=$(sed -n "s/.*PAZAAK_WASM_B64='\(.*\)';/\1/p" web/wasm.js)
+          if [ "$b64" != "$current" ]; then
+            echo "::warning::web/wasm.js não corresponde a web/pazaak.wasm. Rode ./build.ps1."
+          fi
