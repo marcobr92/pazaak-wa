@@ -636,6 +636,11 @@ function applyMagi() {
   const name = MAGI[magiIdx];
   const label = $('#sys-unit');
   if (label) label.textContent = name;
+  const sys = $('#btn-sys');
+  if (sys) {
+    sys.dataset.tip = 'sessão em uso: MAGI ' + name;
+    sys.setAttribute('aria-label', 'sessão em uso: MAGI ' + name);
+  }
   for (const el of document.querySelectorAll('.statusbar .unit')) {
     el.classList.toggle('active', el.dataset.unit === name);
   }
@@ -695,6 +700,15 @@ function bind() {
   $('#modal-rules').addEventListener('click', (e) => {
     if (e.target.id === 'modal-rules') $('#modal-rules').classList.add('hidden');
   });
+
+  const sysBtn = $('#btn-sys');
+  if (sysBtn) {
+    sysBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      sysBtn.classList.toggle('tip-open');
+    });
+    document.addEventListener('click', () => sysBtn.classList.remove('tip-open'));
+  }
 
   const panel = document.createElement('div');
   panel.id = 'sign-panel';
