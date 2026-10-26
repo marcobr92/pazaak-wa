@@ -64,6 +64,20 @@ const OPPONENTS = [
     deck: [C(T.PM,6),C(T.PM,6),C(T.DOUBLE),C(T.DOUBLE),C(T.FLIP24),C(T.TIE,1),C(T.MINUS,6),C(T.PLUS,6),C(T.PM,5),C(T.FLIP36)] },
 ];
 
+/* ── falas fixas dos oponentes (aparecem no balão do nome) ───────────────── */
+const OPPONENT_LINES = {
+  'K-7 · FERRO-VELHO': 'Droide de carga que aprendeu pazaak esperando peça. Não tem pressa e não tem medo de estourar.',
+  'VEX CORREL': 'Contrabandista. Aposta alto justamente quando o deck está ruim — e às vezes dá certo.',
+  'SARNA VELL': 'Mercenária. Joga como atira: sem aviso e sem segunda chance.',
+  'DORN KALEK': 'Piloto de carga. Conta as cartas do baralho principal de cabeça, por tédio.',
+  'ILYRA SAN': 'Contadora. Prefere perder pouco a ganhar com risco.',
+  'BRASK ORDO': 'Caçador. Espera você parar para só então decidir o set.',
+  'NIMA TESH': 'Vidente. Diz que lê o baralho; no fundo, só blefa bem.',
+  'HASK VORN': 'Capitão. Joga pelo placar, não pela mão.',
+  'ZETH ARU': 'Mestre de mesa. Já reconhece a cara de quem tem ±6 na mão.',
+  'MELCHIOR': 'Núcleo lógico. Não sente nada, o que é uma vantagem injusta.',
+};
+
 /* ── estado da tela ──────────────────────────────────────────────────────── */
 const S = {
   wasm: null,
@@ -237,6 +251,25 @@ function showTip(el, parts) {
     a.textContent = parts.adv;
     box.appendChild(a);
   }
+  if (parts.items && parts.items.length) {
+    const list = document.createElement('div');
+    list.className = 'tip-list';
+    for (const item of parts.items) {
+      const row = document.createElement('div');
+      row.className = 'tip-row' + (item.dim ? ' dim' : '');
+      const name = document.createElement('span');
+      name.textContent = item.text;
+      row.appendChild(name);
+      if (item.tag) {
+        const tag = document.createElement('span');
+        tag.className = 'tag';
+        tag.textContent = item.tag;
+        row.appendChild(tag);
+      }
+      list.appendChild(row);
+    }
+    box.appendChild(list);
+  }
   box.classList.add('on');
   positionTip(el);
 }
@@ -257,6 +290,25 @@ function attachTip(el, provider, opts = {}) {
       showTip(el, get());
     });
   }
+}
+
+function opponentTip() {
+  const opp = S.opp;
+  if (!opp) return { head: 'oponente', body: '' };
+  const short = opp.name.split('·')[0].trim();
+  const parts = { head: short, body: OPPONENT_LINES[opp.name] || 'sem informação.' };
+  if (S.mode === 'campaign' && S.order.length) {
+    parts.items = S.order.map((idx, i) => {
+      const o = OPPONENTS[idx];
+      const done = i < S.step;
+      return {
+        text: String(i + 1).padStart(2, '0') + ' ' + o.name.split('·')[0].trim(),
+        tag: done ? 'vencido' : i === S.step ? 'agora' : '',
+        dim: done,
+      };
+    });
+  }
+  return parts;
 }
 
 function cardTip(code) {
@@ -344,8 +396,8 @@ function renderTable() {
   const pSum = $('#p-sum'), oSum = $('#o-sum');
   pSum.textContent = ps;
   oSum.textContent = os;
-  pSum.className = 'sum' + (ps > 20 ? ' bust' : ps === 20 ? ' twenty' : '');
-  oSum.className = 'sum' + (os > 20 ? ' bust' : os === 20 ? ' twenty' : '');
+  pSum.className = 'sum p' + (ps > 20 ? ' bust' : ps === 20 ? ' twenty' : '');
+  oSum.className = 'sum o' + (os > 20 ? ' bust' : os === 20 ? ' twenty' : '');
 
   const last = w.pa_last();
   $('#last-card').textContent = last > 0 ? last : '—';
@@ -644,8 +696,8 @@ function blankTable() {
   }
   const ps = $('#p-sum');
   const os = $('#o-sum');
-  if (ps) { ps.textContent = '0'; ps.className = 'sum'; }
-  if (os) { os.textContent = '0'; os.className = 'sum'; }
+  if (ps) { ps.textContent = '0'; ps.className = 'sum p'; }
+  if (os) { os.textContent = '0'; os.className = 'sum o'; }
   const last = $('#last-card');
   if (last) last.textContent = '—';
   const tag = $('#turn-tag');
@@ -1027,6 +1079,8 @@ function bind() {
     const btn = e.target.closest('[data-pick]');
     if (btn) resolveCoin(Number(btn.dataset.pick));
   });
+
+  attachTip($('#opp-name'), opponentTip, { tabbable: true });
 
   const sysBtn = $('#btn-sys');
   if (sysBtn) {
