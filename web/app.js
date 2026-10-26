@@ -37,7 +37,7 @@ function cardClass(code) {
 
 const DEFAULT_DECK = [
   C(T.PM, 3), C(T.PM, 4), C(T.PLUS, 5), C(T.MINUS, 4), C(T.PM, 2),
-  C(T.PLUS, 1), C(T.MINUS, 2), C(T.TIE, 1), C(T.FLIP24), C(T.DOUBLE),
+  C(T.PLUS, 1), C(T.MINUS, 2), C(T.PLUS, 2), C(T.MINUS, 1), C(T.MINUS, 5),
 ];
 
 /* ── oponentes ───────────────────────────────────────────────────────────── */
@@ -81,7 +81,7 @@ const S = {
 
 function loadDeck() {
   try {
-    const raw = localStorage.getItem('pazaak.deck');
+    const raw = localStorage.getItem('pazaak.deck.v2');
     if (raw) {
       const arr = JSON.parse(raw);
       if (Array.isArray(arr) && arr.length === 10) return arr;
@@ -624,7 +624,7 @@ function saveDeck() {
   for (const [code, n] of draft) for (let i = 0; i < n; i++) arr.push(code);
   if (arr.length !== 10) return;
   S.deck = arr;
-  try { localStorage.setItem('pazaak.deck', JSON.stringify(arr)); } catch (e) {}
+  try { localStorage.setItem('pazaak.deck.v2', JSON.stringify(arr)); } catch (e) {}
   show('home');
 }
 
@@ -675,6 +675,10 @@ function bind() {
   }
 
   $('#btn-deck').addEventListener('click', openDeck);
+  $('#btn-deck-clear').addEventListener('click', () => {
+    draft.clear();
+    renderDeck();
+  });
   $('#btn-home').addEventListener('click', goHome);
   $('#btn-deck-save').addEventListener('click', saveDeck);
   $('#btn-deck-reset').addEventListener('click', () => {
