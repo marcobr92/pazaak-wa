@@ -150,6 +150,97 @@ function aiDelay() {
   return Math.min(TURN_MS, Math.round(ms));
 }
 
+/* ── balão de ajuda (cartas e cabeçalho) ─────────────────────────────────── */
+let tipPinned = false;
+
+function hideTip() {
+  tipPinned = false;
+  const box = $('#tipbox');
+  if (box) box.classList.remove('on');
+}
+
+function positionTip(el) {
+  const box = $('#tipbox');
+  if (!box) return;
+  const r = el.getBoundingClientRect();
+  const bw = box.offsetWidth;
+  const bh = box.offsetHeight;
+  let left = r.left + r.width / 2 - bw / 2;
+  left = Math.max(8, Math.min(window.innerWidth - bw - 8, left));
+  let top = r.top - bh - 10;
+  if (top < 8) top = r.bottom + 10;
+  box.style.left = Math.round(left) + 'px';
+  box.style.top = Math.round(top) + 'px';
+}
+
+function showTip(el, parts) {
+  const box = $('#tipbox');
+  if (!box) return;
+  box.replaceChildren();
+  if (parts.head) {
+    const h = document.createElement('div');
+    h.className = 'tip-head';
+    h.textContent = parts.head;
+    box.appendChild(h);
+  }
+  if (parts.body) {
+    const b = document.createElement('div');
+    b.textContent = parts.body;
+    box.appendChild(b);
+  }
+  if (parts.adv) {
+    const a = document.createElement('span');
+    a.className = 'adv';
+    a.textContent = parts.adv;
+    box.appendChild(a);
+  }
+  box.classList.add('on');
+  positionTip(el);
+}
+
+function attachTip(el, provider, opts = {}) {
+  const get = () => (typeof provider === 'function' ? provider() : provider);
+  el.addEventListener('mouseenter', () => { if (!tipPinned) showTip(el, get()); });
+  el.addEventListener('mouseleave', () => { if (!tipPinned) hideTip(); });
+  if (opts.tabbable) {
+    el.tabIndex = 0;
+    el.addEventListener('focus', () => showTip(el, get()));
+    el.addEventListener('blur', () => { if (!tipPinned) hideTip(); });
+  }
+  if (opts.pin) {
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (tipPinned) { hideTip(); return; }
+      tipPinned = true;
+      showTip(el, get());
+    });
+  }
+}
+
+function cardTip(code) {
+  const t = code >> 4;
+  const v = code & 0xF;
+  const adv = 'carta avançada · KOTOR II';
+  switch (t) {
+    case T.PLUS:
+      return { head: '+' + v, body: `soma ${v} ao seu total no set.` };
+    case T.MINUS:
+      return { head: '−' + v, body: `subtrai ${v} do seu total. serve para desfazer estouro.` };
+    case T.PM:
+      return { head: '±' + v, body: `ao jogar, você escolhe: soma ${v} ou subtrai ${v}.` };
+    case T.FLIP24:
+      return { head: '2&4', body: 'inverte o sinal de todas as cartas 2 e 4 na mesa — inclusive as do oponente.', adv };
+    case T.FLIP36:
+      return { head: '3&6', body: 'inverte o sinal de todas as cartas 3 e 6 na mesa — inclusive as do oponente.', adv };
+    case T.DOUBLE:
+      return { head: '2×', body: 'dobra a última carta que você comprou do baralho principal.', adv };
+    case T.TIE:
+      return { head: 'TIE', body: 'vale ±1 e, se o set empatar, a vitória é sua.', adv };
+    default:
+      return { head: cardLabel(code), body: '' };
+  }
+}
+
 /* ── carregamento do wasm ────────────────────────────────────────────────── */
 async function loadWasm() {
   let bytes = null;
@@ -290,6 +381,7 @@ function renderHand() {
       continue;
     }
     const el = cardEl(code);
+    attachTip(el, () => cardTip(code), { tabbable: true });
     if (locked) {
       el.classList.add('used');
     } else {
@@ -590,7 +682,11 @@ function renderDeck() {
     const n = draft.get(card.code) || 0;
     const cell = document.createElement('div');
     cell.className = 'deck-cell';
-    cell.appendChild(cardEl(card.code));
+    const face = cardEl(card.code);
+    const info = cardTip(card.code);
+    face.setAttribute('aria-label', `${info.head}: ${info.body}${info.adv ? ' — ' + info.adv : ''}`);
+    attachTip(face, () => cardTip(card.code));
+    cell.appendChild(face);
     const qty = document.createElement('div');
     qty.className = 'qty';
     const minus = document.createElement('button');
@@ -637,10 +733,7 @@ function applyMagi() {
   const label = $('#sys-unit');
   if (label) label.textContent = name;
   const sys = $('#btn-sys');
-  if (sys) {
-    sys.dataset.tip = 'sessão em uso: MAGI ' + name;
-    sys.setAttribute('aria-label', 'sessão em uso: MAGI ' + name);
-  }
+  if (sys) sys.setAttribute('aria-label', 'MAGI SYSTEM — sessão em uso: ' + name);
   for (const el of document.querySelectorAll('.statusbar .unit')) {
     el.classList.toggle('active', el.dataset.unit === name);
   }
@@ -707,12 +800,15 @@ function bind() {
 
   const sysBtn = $('#btn-sys');
   if (sysBtn) {
-    sysBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      sysBtn.classList.toggle('tip-open');
-    });
-    document.addEventListener('click', () => sysBtn.classList.remove('tip-open'));
+    attachTip(
+      sysBtn,
+      () => ({ head: 'MAGI SYSTEM', body: 'sessão em uso: MAGI ' + MAGI[magiIdx] }),
+      { pin: true },
+    );
   }
+  document.addEventListener('click', () => { if (tipPinned) hideTip(); });
+  window.addEventListener('scroll', hideTip, { passive: true });
+  window.addEventListener('resize', hideTip);
 
   const panel = document.createElement('div');
   panel.id = 'sign-panel';
