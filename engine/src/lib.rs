@@ -206,16 +206,6 @@ fn start_set(g: &mut Game) {
     g.last = 0;
     g.set_winner = -1;
     g.set_no += 1;
-    // carta de abertura para cada lado
-    let a = draw(g, 0);
-    let b = draw(g, 1);
-    g.last = if b >= 0 { b } else { a };
-    if g.p[0].sum == 20 {
-        g.p[0].stood = true;
-    }
-    if g.p[1].sum == 20 {
-        g.p[1].stood = true;
-    }
     g.turn = g.first;
     g.phase = 0;
 }
@@ -480,7 +470,7 @@ pub extern "C" fn pa_set_opp_deck(i: u32, v: u32) {
 }
 
 #[no_mangle]
-pub extern "C" fn pa_start_match(seed: u32, diff: u32) -> i32 {
+pub extern "C" fn pa_start_match(seed: u32, diff: u32, first: u32) -> i32 {
     let g = g();
     g.rng = (seed as u64) | 1;
     g.diff = (diff % 3) as u8;
@@ -488,7 +478,7 @@ pub extern "C" fn pa_start_match(seed: u32, diff: u32) -> i32 {
     g.p[1] = P::new();
     deal_hand(g, 0);
     deal_hand(g, 1);
-    g.first = rnd(g, 2) as u8;
+    g.first = if first == 1 { 1 } else { 0 };
     g.set_no = 0;
     g.set_winner = -1;
     g.match_winner = -1;

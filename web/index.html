@@ -138,6 +138,52 @@
   </section>
 </main>
 
+<!-- ── MOEDA ───────────────────────────────────────────────────────────────── -->
+<div id="coin-modal" class="coin-modal hidden">
+  <div class="coin-box">
+    <p class="coin-title">SORTEIO DE INÍCIO</p>
+    <div class="coin-stage">
+      <div class="coin" id="coin">
+        <div class="coin-face front">
+          <svg viewBox="0 0 100 100" width="108" height="108" fill="none" stroke="currentColor"
+               stroke-width="2.5" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="50" cy="50" r="34"/>
+            <circle cx="50" cy="50" r="12"/>
+            <g stroke-linecap="round">
+              <line x1="50" y1="16" x2="50" y2="38"/>
+              <line x1="50" y1="16" x2="50" y2="38" transform="rotate(60 50 50)"/>
+              <line x1="50" y1="16" x2="50" y2="38" transform="rotate(120 50 50)"/>
+              <line x1="50" y1="16" x2="50" y2="38" transform="rotate(180 50 50)"/>
+              <line x1="50" y1="16" x2="50" y2="38" transform="rotate(240 50 50)"/>
+              <line x1="50" y1="16" x2="50" y2="38" transform="rotate(300 50 50)"/>
+            </g>
+          </svg>
+        </div>
+        <div class="coin-face back">
+          <svg viewBox="0 0 100 100" width="108" height="108" fill="none" stroke="currentColor"
+               stroke-width="2.5" stroke-linejoin="round" aria-hidden="true">
+            <polygon points="50,12 80,30 80,70 50,88 20,70 20,30"/>
+            <polygon points="50,30 66,39 66,61 50,70 34,61 34,39"/>
+            <g stroke-linecap="round">
+              <line x1="50" y1="30" x2="50" y2="12"/>
+              <line x1="66" y1="39" x2="80" y2="30"/>
+              <line x1="66" y1="61" x2="80" y2="70"/>
+              <line x1="50" y1="70" x2="50" y2="88"/>
+              <line x1="34" y1="61" x2="20" y2="70"/>
+              <line x1="34" y1="39" x2="20" y2="30"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </div>
+    <p class="coin-line" id="coin-line">escolha seu lado</p>
+    <div class="coin-actions" id="coin-actions">
+      <button class="act" data-pick="0">CARA · REPÚBLICA</button>
+      <button class="act act-alt" data-pick="1">COROA · IMPÉRIO</button>
+    </div>
+  </div>
+</div>
+
 <!-- ── REGRAS ──────────────────────────────────────────────────────────────── -->
 <div id="modal-rules" class="modal hidden">
   <div class="modal-box">
@@ -148,6 +194,7 @@
     <div class="modal-body">
       <h3>Objetivo</h3>
       <p>Chegar a 20, ou o mais perto possível sem estourar. Quem ganha <strong>3 sets</strong> ganha a partida.</p>
+      <p>Quem começa é decidido no sorteio da moeda. O vencedor de cada set começa o set seguinte.</p>
 
       <h3>Baralho principal</h3>
       <p>40 cartas: quatro de cada valor, de 1 a 10. Verde. Compra-se uma por turno.</p>

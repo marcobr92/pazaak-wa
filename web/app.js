@@ -75,6 +75,7 @@ const S = {
   streak: 0,
   busy: false,
   pending: -1,
+  coinPending: false,
   deck: loadDeck(),
   clock: { id: null, end: 0 },
 };
@@ -592,9 +593,95 @@ function seedNow() {
   return (Date.now() ^ (Math.random() * 0xffffffff)) >>> 0;
 }
 
+function blankTable() {
+  stopClock();
+  for (const id of ['#p-cards', '#o-cards', '#p-pips', '#o-pips']) {
+    const el = $(id);
+    if (el) el.replaceChildren();
+  }
+  const ps = $('#p-sum');
+  const os = $('#o-sum');
+  if (ps) { ps.textContent = '0'; ps.className = 'sum'; }
+  if (os) { os.textContent = '0'; os.className = 'sum'; }
+  const last = $('#last-card');
+  if (last) last.textContent = '—';
+  const tag = $('#turn-tag');
+  if (tag) { tag.textContent = 'SORTEIO'; tag.classList.remove('mine'); }
+  const setIdx = $('#set-index');
+  if (setIdx) setIdx.textContent = 'SET 1';
+  const hand = $('#hand');
+  if (hand) {
+    hand.replaceChildren();
+    for (let i = 0; i < 4; i++) {
+      const d = document.createElement('div');
+      d.className = 'card used';
+      d.textContent = '—';
+      hand.appendChild(d);
+    }
+  }
+  const logEl = $('#log');
+  if (logEl) logEl.replaceChildren();
+  const view = $('#view-game');
+  if (view) view.classList.remove('waiting');
+  const hint = $('#hint');
+  if (hint) hint.textContent = '';
+}
+
+function openCoin() {
+  const modal = $('#coin-modal');
+  if (!modal) { startWithFirst(0); return; }
+  const coin = $('#coin');
+  const line = $('#coin-line');
+  const actions = $('#coin-actions');
+  S.coinPending = true;
+  coin.style.transition = 'none';
+  coin.style.transform = 'rotateY(0deg)';
+  void coin.offsetWidth;
+  coin.style.transition = '';
+  line.textContent = 'escolha seu lado';
+  actions.classList.remove('hidden');
+  modal.classList.remove('hidden');
+}
+
+function resolveCoin(pick) {
+  if (!S.coinPending) return;
+  S.coinPending = false;
+  const coin = $('#coin');
+  const line = $('#coin-line');
+  const actions = $('#coin-actions');
+  actions.classList.add('hidden');
+
+  const side = Math.random() < 0.5 ? 0 : 1; // 0 = cara (república), 1 = coroa (império)
+  const won = side === pick;
+
+  coin.style.transform = `rotateY(${5 * 360 + (side === 1 ? 180 : 0)}deg)`;
+  line.textContent = 'girando…';
+
+  setTimeout(() => {
+    const face = side === 0 ? 'cara' : 'coroa';
+    const rival = S.opp ? S.opp.name.split('·')[0].trim() : 'oponente';
+    line.textContent = `${face} · ${won ? 'você começa' : rival + ' começa'}`;
+    setTimeout(() => {
+      const modal = $('#coin-modal');
+      if (modal) modal.classList.add('hidden');
+      startWithFirst(won ? 0 : 1);
+    }, 1100);
+  }, 1300);
+}
+
+function startWithFirst(first) {
+  if (S.view !== 'game' || !S.opp) return;
+  const w = S.wasm;
+  w.pa_start_match(seedNow(), S.opp.diff, first);
+  renderTable();
+  log('set 1 — ' + S.opp.name);
+  loop();
+}
+
 function prepareMatch(opp) {
   S.opp = opp;
   S.pending = -1;
+  S.coinPending = false;
   LOG.length = 0;
   const w = S.wasm;
   for (let i = 0; i < 10; i++) {
@@ -603,10 +690,8 @@ function prepareMatch(opp) {
   }
   $('#opp-name').textContent = opp.name;
   show('game');
-  w.pa_start_match(seedNow(), opp.diff);
-  renderTable();
-  log('set 1 — ' + opp.name);
-  loop();
+  blankTable();
+  openCoin();
 }
 
 function startCampaignMatch() {
@@ -625,6 +710,9 @@ function startChallengeMatch() {
 function goHome() {
   stopClock();
   S.pending = -1;
+  S.coinPending = false;
+  const modal = $('#coin-modal');
+  if (modal) modal.classList.add('hidden');
   S.mode = null;
   S.opp = null;
   show('home');
@@ -875,6 +963,11 @@ function bind() {
   $('#btn-rules-close').addEventListener('click', () => $('#modal-rules').classList.add('hidden'));
   $('#modal-rules').addEventListener('click', (e) => {
     if (e.target.id === 'modal-rules') $('#modal-rules').classList.add('hidden');
+  });
+
+  $('#coin-actions').addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-pick]');
+    if (btn) resolveCoin(Number(btn.dataset.pick));
   });
 
   const sysBtn = $('#btn-sys');
