@@ -74,6 +74,7 @@ const S = {
   step: 0,
   streak: 0,
   busy: false,
+  reentry: false,
   pending: -1,
   coinPending: false,
   deck: loadDeck(),
@@ -94,43 +95,84 @@ function loadDeck() {
 const $ = (sel) => document.querySelector(sel);
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
-/* ── relógio do turno (10s, aviso a partir de 6s) ────────────────────────── */
+/* ── relógio do turno (10s, aviso a partir de 6s, pausável) ──────────────── */
 const TURN_MS = 10000;
 const WARN_MS = 6000;
+
+function clockPaint(left) {
+  const box = $('#turn-clock');
+  const view = $('#view-game');
+  if (!box) return;
+  const elapsed = TURN_MS - Math.max(0, left);
+  const fill = $('#clock-fill');
+  if (fill) fill.style.transform = `scaleX(${Math.max(0, left / TURN_MS)})`;
+  const label = $('#clock-label');
+  if (label) label.textContent = Math.max(0, Math.ceil(left / 1000)) + 's';
+  const alert = Math.max(0, Math.min(1, (elapsed - WARN_MS) / (TURN_MS - WARN_MS)));
+  if (view) view.style.setProperty('--alert', alert.toFixed(3));
+  box.classList.toggle('urgent', elapsed >= WARN_MS);
+}
+
+function clockPauseBtn() {
+  const btn = $('#btn-pause');
+  if (!btn) return;
+  const paused = S.clock.paused === true;
+  btn.textContent = paused ? '▶' : 'II';
+  btn.classList.toggle('paused', paused);
+  btn.setAttribute('aria-label', paused ? 'retomar o tempo' : 'pausar o tempo');
+}
+
+function clockRun() {
+  if (S.clock.id) clearInterval(S.clock.id);
+  S.clock.id = setInterval(() => {
+    const left = S.clock.end - performance.now();
+    clockPaint(left);
+    if (left <= 0) {
+      stopClock();
+      turnTimeout();
+    }
+  }, 100);
+}
 
 function stopClock() {
   if (S.clock.id) { clearInterval(S.clock.id); S.clock.id = null; }
   S.clock.end = 0;
+  S.clock.left = TURN_MS;
+  S.clock.paused = false;
   const view = $('#view-game');
   if (view) view.style.setProperty('--alert', '0');
   const box = $('#turn-clock');
   if (box) { box.classList.add('hidden'); box.classList.remove('urgent'); }
   const fill = $('#clock-fill');
   if (fill) fill.style.transform = 'scaleX(1)';
+  clockPauseBtn();
 }
 
 function startClock() {
   stopClock();
   const box = $('#turn-clock');
-  const view = $('#view-game');
   if (!box) return;
   box.classList.remove('hidden');
+  S.clock.paused = false;
+  S.clock.left = TURN_MS;
   S.clock.end = performance.now() + TURN_MS;
-  S.clock.id = setInterval(() => {
-    const left = S.clock.end - performance.now();
-    const elapsed = TURN_MS - Math.max(0, left);
-    const fill = $('#clock-fill');
-    if (fill) fill.style.transform = `scaleX(${Math.max(0, left / TURN_MS)})`;
-    const label = $('#clock-label');
-    if (label) label.textContent = Math.max(0, Math.ceil(left / 1000)) + 's';
-    const alert = Math.max(0, Math.min(1, (elapsed - WARN_MS) / (TURN_MS - WARN_MS)));
-    if (view) view.style.setProperty('--alert', alert.toFixed(3));
-    box.classList.toggle('urgent', elapsed >= WARN_MS);
-    if (left <= 0) {
-      stopClock();
-      turnTimeout();
-    }
-  }, 100);
+  clockPaint(TURN_MS);
+  clockRun();
+  clockPauseBtn();
+}
+
+function togglePause() {
+  if (!S.clock.id && !S.clock.paused) return;
+  if (S.clock.paused) {
+    S.clock.paused = false;
+    S.clock.end = performance.now() + S.clock.left;
+    clockRun();
+  } else {
+    S.clock.left = Math.max(0, S.clock.end - performance.now());
+    S.clock.paused = true;
+    if (S.clock.id) { clearInterval(S.clock.id); S.clock.id = null; }
+  }
+  clockPauseBtn();
 }
 
 function turnTimeout() {
@@ -200,14 +242,13 @@ function showTip(el, parts) {
 }
 
 function attachTip(el, provider, opts = {}) {
+  if (!el) return;
   const get = () => (typeof provider === 'function' ? provider() : provider);
   el.addEventListener('mouseenter', () => { if (!tipPinned) showTip(el, get()); });
   el.addEventListener('mouseleave', () => { if (!tipPinned) hideTip(); });
-  if (opts.tabbable) {
-    el.tabIndex = 0;
-    el.addEventListener('focus', () => showTip(el, get()));
-    el.addEventListener('blur', () => { if (!tipPinned) hideTip(); });
-  }
+  el.addEventListener('focus', () => showTip(el, get()));
+  el.addEventListener('blur', () => { if (!tipPinned) hideTip(); });
+  if (opts.tabbable) el.tabIndex = 0;
   if (opts.pin) {
     el.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -398,6 +439,9 @@ function updateActions() {
   const mine = w.pa_phase() === 1 && w.pa_turn() === 0;
   $('#btn-end').disabled = !mine || S.pending >= 0;
   $('#btn-stand').disabled = !mine || S.pending >= 0;
+  const pause = $('#btn-pause');
+  if (pause) pause.disabled = !mine;
+  clockPauseBtn();
   const panel = $('#sign-panel');
   if (panel) panel.classList.toggle('hidden', S.pending < 0);
 }
@@ -462,19 +506,16 @@ function log(msg) {
 
 /* ── laço de turnos ──────────────────────────────────────────────────────── */
 async function loop() {
-  if (S.busy) return;
+  if (S.busy) { S.reentry = true; return; }
   S.busy = true;
   try {
-    let guard = 0;
-    while (guard++ < 200) {
+    for (;;) {
       if (S.view !== 'game') return;
       const w = S.wasm;
       const phase = w.pa_phase();
 
-      if (phase === 3) {
-        S.busy = false;
-        return matchOver();
-      }
+      if (phase === 3) { matchOver(); return; }
+
       if (phase === 2) {
         renderTable();
         const sw = w.pa_set_winner();
@@ -491,27 +532,23 @@ async function loop() {
           sub = `ninguém pontuou · você ${w.pa_sets_p()} de 3 · ${name} ${w.pa_sets_o()} de 3`;
         }
         await flash(title, sub);
+        if (S.view !== 'game') return;
         w.pa_next_set();
         renderTable();
-        log(`set ${w.pa_set_no()} — compra de abertura`);
+        log(`set ${w.pa_set_no()} — cartas na mesa`);
         continue;
       }
+
       if (phase === 0) {
         if (w.pa_turn() === 0) {
           w.pa_begin_turn();
           renderTable();
           log('você comprou');
           await wait(420);
-          if (w.pa_p_sum() >= 20 || w.pa_p_n() >= 9) {
-            w.pa_stand();
-            renderTable();
-            await wait(350);
-            continue;
-          }
-          S.busy = false;
-          return;
+          continue; // estado pode ter mudado durante a animação
         }
         await wait(aiDelay());
+        if (S.view !== 'game') return;
         w.pa_ai_turn();
         const act = w.pa_log();
         log(act === 2 ? 'oponente jogou carta' : act === 3 ? 'oponente parou' : 'oponente comprou e encerrou');
@@ -519,14 +556,20 @@ async function loop() {
         await wait(380);
         continue;
       }
-      if (phase === 1) {
-        S.busy = false;
-        return;
+
+      // phase 1
+      if (w.pa_turn() !== 0) { await wait(200); continue; }
+      if (w.pa_p_sum() >= 20 || w.pa_p_n() >= 9) {
+        w.pa_stand();
+        renderTable();
+        await wait(350);
+        continue;
       }
-      break;
+      return; // sua vez: espera ação
     }
   } finally {
     S.busy = false;
+    if (S.reentry) { S.reentry = false; loop(); }
   }
 }
 
@@ -682,6 +725,7 @@ function prepareMatch(opp) {
   S.opp = opp;
   S.pending = -1;
   S.coinPending = false;
+  S.reentry = false;
   LOG.length = 0;
   const w = S.wasm;
   for (let i = 0; i < 10; i++) {
@@ -958,6 +1002,20 @@ function bind() {
 
   $('#btn-end').addEventListener('click', endTurn);
   $('#btn-stand').addEventListener('click', stand);
+  $('#btn-pause').addEventListener('click', togglePause);
+
+  attachTip($('#btn-end'), () => ({
+    head: 'ENCERRAR TURNO',
+    body: 'fecha o turno sem parar. você compra outra carta no próximo turno e continua tentando chegar perto de 20.',
+  }));
+  attachTip($('#btn-pause'), () => ({
+    head: 'PAUSAR',
+    body: 'congela o relógio de 10s enquanto você pensa. o turno não termina enquanto estiver pausado.',
+  }));
+  attachTip($('#btn-stand'), () => ({
+    head: 'PARAR',
+    body: 'trava o seu total neste set. você não compra mais cartas — o oponente segue jogando até parar ou estourar.',
+  }));
 
   $('#btn-rules').addEventListener('click', () => $('#modal-rules').classList.remove('hidden'));
   $('#btn-rules-close').addEventListener('click', () => $('#modal-rules').classList.add('hidden'));

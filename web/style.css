@@ -247,6 +247,8 @@ main{
 .act:disabled{opacity:.25;cursor:not-allowed}
 .act-alt{border-color:var(--line2);color:var(--dim);background:transparent}
 .act-alt:hover:not(:disabled){border-color:var(--amber);color:var(--amber);background:rgba(255,180,84,.06)}
+.act-icon{flex:0 0 66px;letter-spacing:.08em;font-size:13px}
+.act-icon.paused{border-color:var(--amber);color:var(--amber);background:rgba(255,180,84,.12)}
 
 /* ── banner de resultado ──────────────────────────────────────────────── */
 .banner{
