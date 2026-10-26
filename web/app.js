@@ -766,21 +766,24 @@ async function loop() {
         renderTable();
         const sw = w.pa_set_winner();
         const name = S.opp && S.opp.name ? S.opp.name.split('·')[0].trim() : 'oponente';
-        let title, sub;
+        let title, sub, note;
         if (sw === 0) {
           title = 'VOCÊ VENCEU ESSE SET';
-          sub = `você ${w.pa_sets_p()} de 3 · ${name} ${w.pa_sets_o()} de 3`;
+          sub = setResultLine(sw);
+          note = `você ${w.pa_sets_p()} de 3 · ${name} ${w.pa_sets_o()} de 3`;
           sfx.setWin();
         } else if (sw === 1) {
           title = `${name} VENCEU ESSE SET`;
-          sub = `você ${w.pa_sets_p()} de 3 · ${name} ${w.pa_sets_o()} de 3`;
+          sub = setResultLine(sw);
+          note = `você ${w.pa_sets_p()} de 3 · ${name} ${w.pa_sets_o()} de 3`;
           sfx.setLose();
         } else {
           title = 'SET EMPATADO';
-          sub = `ninguém pontuou · você ${w.pa_sets_p()} de 3 · ${name} ${w.pa_sets_o()} de 3`;
+          sub = setResultLine(sw);
+          note = `você ${w.pa_sets_p()} de 3 · ${name} ${w.pa_sets_o()} de 3`;
           sfx.tie();
         }
-        await flash(title, sub);
+        await flash(title, sub, note);
         if (S.view !== 'game') return;
         w.pa_next_set();
         renderTable();
@@ -824,13 +827,41 @@ async function loop() {
   }
 }
 
-function flash(title, sub) {
+function flash(title, sub, note) {
   const b = $('#banner');
   b.querySelector('.banner-title').textContent = title;
-  b.querySelector('.banner-sub').textContent = sub;
+  b.querySelector('.banner-sub').textContent = sub || '';
+  const noteEl = b.querySelector('.banner-note');
+  if (noteEl) {
+    noteEl.textContent = note || '';
+    noteEl.classList.toggle('hidden', !note);
+  }
   b.querySelector('#banner-btn').classList.add('hidden');
   b.classList.remove('hidden');
-  return wait(1900).then(() => b.classList.add('hidden'));
+  return wait(2100).then(() => b.classList.add('hidden'));
+}
+
+function setResultLine(sw) {
+  const w = S.wasm;
+  const ps = w.pa_p_sum();
+  const os = w.pa_o_sum();
+  const nome = S.opp && S.opp.name ? S.opp.name.split('·')[0].trim() : 'oponente';
+  const pBust = ps > 20;
+  const oBust = os > 20;
+  const pFull = w.pa_p_n() >= 9;
+  const oFull = w.pa_o_n() >= 9;
+
+  if (sw === 0) {
+    if (oBust) return `${nome} estourou em ${os}; você estava em ${ps}`;
+    if (pFull) return `mesa cheia a seu favor: ${ps} contra ${os}`;
+    return `você parou em ${ps}; ${nome} parou em ${os}`;
+  }
+  if (sw === 1) {
+    if (pBust) return `suas cartas chegaram a ${ps}; ${nome} estava em ${os}`;
+    if (oFull) return `mesa cheia para ${nome}: ${os} contra ${ps}`;
+    return `${nome} parou em ${os}; você parou em ${ps}`;
+  }
+  return `os dois terminaram em ${ps} — set sem vencedor`;
 }
 
 function banner(title, sub, btnLabel, onBtn) {
