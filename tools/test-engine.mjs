@@ -51,7 +51,7 @@ function bestCard(sum) {
 let matches = 0, wins = 0, sets = 0;
 for (let m = 0; m < 200; m++) {
   setup();
-  w.pa_start_match((m * 2654435761) >>> 0, m % 3);
+  w.pa_start_match((m * 2654435761) >>> 0, m % 3, m % 2);
   let guard = 0;
   while (w.pa_phase() !== 3 && guard++ < 2000) {
     const phase = w.pa_phase();

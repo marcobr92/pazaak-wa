@@ -55,27 +55,30 @@ main,header{position:relative;z-index:1}
 .sys-wrap{position:relative;display:inline-flex}
 .sys{
   color:var(--dim);font-size:10px;letter-spacing:.25em;font-family:inherit;
-  background:none;border:none;padding:4px 6px;cursor:help;position:relative;
+  background:none;border:none;padding:4px 6px;cursor:help;
   transition:color .15s;
 }
 .sys:hover,.sys:focus-visible{color:var(--amber);outline:none}
-.sys::after{
-  content:attr(data-tip);
-  position:absolute;top:calc(100% + 10px);right:0;z-index:60;
-  white-space:nowrap;background:#0d1418;border:1px solid var(--line2);
-  color:var(--ink);font-size:10px;letter-spacing:.1em;line-height:1;
-  padding:9px 12px;opacity:0;pointer-events:none;
-  transform:translateY(-4px);transition:opacity .15s,transform .15s;
-  box-shadow:0 8px 24px rgba(0,0,0,.6);
+
+/* balão único: posicionado por JS, não é cortado por clip-path */
+.tipbox{
+  position:fixed;left:0;top:0;z-index:80;max-width:280px;
+  background:#0d1418;border:1px solid var(--line2);
+  color:var(--ink);font-size:10px;line-height:1.6;letter-spacing:.04em;
+  padding:9px 11px;opacity:0;visibility:hidden;pointer-events:none;
+  transform:translateY(4px);transition:opacity .12s ease,transform .12s ease;
+  box-shadow:0 12px 30px rgba(0,0,0,.7);
 }
-.sys::before{
-  content:"";position:absolute;top:calc(100% + 5px);right:14px;z-index:60;
-  border:5px solid transparent;border-bottom-color:var(--line2);
-  opacity:0;pointer-events:none;transition:opacity .15s;
+.tipbox.on{opacity:1;visibility:visible;transform:none}
+.tipbox .tip-head{
+  color:var(--amber);font-weight:700;letter-spacing:.14em;
+  padding-bottom:6px;margin-bottom:6px;border-bottom:1px solid var(--line);
 }
-.sys:hover::after,.sys:hover::before,
-.sys:focus-visible::after,.sys:focus-visible::before,
-.sys.tip-open::after,.sys.tip-open::before{opacity:1;transform:none}
+.tipbox .adv{display:block;margin-top:7px;color:var(--gold);font-size:9px;letter-spacing:.14em}
+.tipbox .tip-list{margin-top:9px;padding-top:9px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:5px}
+.tipbox .tip-row{display:flex;align-items:center;justify-content:space-between;gap:14px;font-size:9px;letter-spacing:.06em;color:var(--ink)}
+.tipbox .tip-row.dim{color:#3f4b51}
+.tipbox .tip-row .tag{font-size:8px;letter-spacing:.18em;color:var(--orange)}
 
 button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .ghost{
@@ -85,6 +88,17 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 }
 .ghost:hover{border-color:var(--orange);color:var(--orange);background:rgba(255,122,26,.09)}
 .ghost.small{padding:4px 10px;font-size:9px}
+.audio-menu{
+  position:fixed;z-index:75;display:flex;flex-direction:column;min-width:158px;
+  background:var(--panel);border:1px solid var(--line2);
+  box-shadow:0 14px 34px rgba(0,0,0,.7);
+}
+.audio-menu button{
+  padding:10px 13px;text-align:left;font-size:9px;letter-spacing:.18em;
+  color:var(--ink);border-bottom:1px solid var(--line);
+}
+.audio-menu button:last-child{border-bottom:none}
+.audio-menu button:hover{color:var(--orange);background:rgba(255,122,26,.08)}
 
 /* ── views ────────────────────────────────────────────────────────────── */
 main{
@@ -152,18 +166,19 @@ main{
   display:flex;align-items:center;gap:14px;padding:12px 16px;
   border:1px solid var(--line);background:var(--panel);font-size:12px;
 }
-.ladder li.done{border-color:#204028;color:#4f6a55}
+.ladder li.done{color:var(--dim);border-color:#171e22}
+.ladder li.done .who{color:var(--dim)}
+.ladder li.done .tag{color:#3f4b51}
 .ladder li.current{border-color:var(--orange);background:rgba(255,122,26,.07);box-shadow:inset 2px 0 0 var(--orange)}
 .ladder .stage{color:var(--dim);width:44px;font-size:10px;letter-spacing:.2em}
 .ladder .who{flex:1;letter-spacing:.1em}
 .ladder .tag{font-size:9px;letter-spacing:.2em;color:var(--dim)}
 .ladder li.current .tag{color:var(--orange)}
-.ladder li.done .tag{color:#3f7a4c}
 
 /* ── mesa ─────────────────────────────────────────────────────────────── */
 .game-top{display:flex;align-items:center;gap:16px;margin:0 auto 18px;max-width:880px}
 .opp-info{margin-left:auto;display:flex;align-items:center;gap:18px;font-size:12px;letter-spacing:.14em}
-.opp-info #opp-name{color:var(--amber)}
+.opp-info #opp-name{color:var(--amber);cursor:help}
 .score{color:var(--orange);font-weight:700;letter-spacing:.2em}
 .score-wrap{display:flex;flex-direction:column;align-items:flex-end;gap:3px}
 .score-cap{font-size:8px;letter-spacing:.22em;color:var(--dim)}
@@ -187,10 +202,12 @@ main{
 .cards{display:flex;flex-wrap:wrap;gap:6px;min-height:96px;align-content:flex-start}
 .sum{
   font-size:46px;font-weight:800;letter-spacing:.04em;margin-top:14px;
-  color:var(--amber);text-align:right;line-height:1;
+  text-align:right;line-height:1;
 }
-.sum.bust{color:var(--red);text-shadow:0 0 18px rgba(255,65,54,.5)}
-.sum.twenty{color:var(--green);text-shadow:0 0 18px rgba(126,224,129,.4)}
+.sum.p{color:#59a9ff}
+.sum.o{color:#ff5b52}
+.sum.bust{color:var(--red);text-shadow:0 0 18px rgba(255,65,54,.55)}
+.sum.twenty{color:var(--green);text-shadow:0 0 18px rgba(126,224,129,.45)}
 
 .center{text-align:center;padding-top:10px}
 .center-label{font-size:9px;letter-spacing:.26em;color:var(--dim);margin-bottom:10px}
@@ -248,6 +265,8 @@ main{
 .act:disabled{opacity:.25;cursor:not-allowed}
 .act-alt{border-color:var(--line2);color:var(--dim);background:transparent}
 .act-alt:hover:not(:disabled){border-color:var(--amber);color:var(--amber);background:rgba(255,180,84,.06)}
+.act-icon{flex:0 0 66px;letter-spacing:.08em;font-size:13px}
+.act-icon.paused{border-color:var(--amber);color:var(--amber);background:rgba(255,180,84,.12)}
 
 /* ── banner de resultado ──────────────────────────────────────────────── */
 .banner{
@@ -305,6 +324,37 @@ main{
 }
 #view-game.waiting #side-p{position:relative}
 
+/* ── moeda de sorteio ─────────────────────────────────────────────────── */
+.coin-modal{
+  position:fixed;inset:0;z-index:70;display:flex;align-items:center;justify-content:center;
+  background:rgba(3,5,7,.88);backdrop-filter:blur(2px);padding:20px;
+}
+.coin-box{
+  min-width:340px;max-width:420px;padding:26px 30px;text-align:center;
+  border:1px solid var(--line2);background:var(--panel);
+  box-shadow:0 24px 60px rgba(0,0,0,.7);
+}
+.coin-title{font-size:9px;letter-spacing:.34em;color:var(--dim);margin-bottom:20px}
+.coin-stage{perspective:900px;display:flex;justify-content:center;margin-bottom:18px}
+.coin{
+  width:132px;height:132px;position:relative;transform-style:preserve-3d;
+  transition:transform 1.25s cubic-bezier(.25,.8,.3,1);
+}
+.coin-face{
+  position:absolute;inset:0;border-radius:50%;border:1px solid var(--line2);
+  background:radial-gradient(circle at 36% 30%,#161e24,#0a0e11);
+  display:flex;align-items:center;justify-content:center;color:var(--amber);
+  backface-visibility:hidden;
+  box-shadow:inset 0 0 26px rgba(255,180,84,.08),0 0 20px rgba(0,0,0,.6);
+}
+.coin-face.back{transform:rotateY(180deg);color:var(--orange)}
+.coin-line{
+  font-size:10px;letter-spacing:.2em;color:var(--dim);
+  margin-bottom:18px;min-height:14px;text-transform:uppercase;
+}
+.coin-actions{display:flex;gap:10px}
+.coin-actions .act{flex:1;padding:12px 14px;font-size:10px}
+
 /* ── barra de status ──────────────────────────────────────────────────── */
 .statusbar{
   position:fixed;left:0;right:0;bottom:0;z-index:30;
@@ -314,6 +364,19 @@ main{
   border-top:1px solid var(--line);
 }
 .statusbar .right{margin-left:auto}
+#sync-value{display:inline-block;min-width:2.9em;text-align:right;transition:color .18s}
+#sync-value.alert{color:var(--red);text-shadow:0 0 10px rgba(255,65,54,.65)}
+#sys-unit{transition:color .18s}
+#sys-unit.alert{color:var(--red);text-shadow:0 0 10px rgba(255,65,54,.55)}
+#sys-unit.flash{animation:unitFlash .7s ease-out}
+@keyframes unitFlash{
+  0%{opacity:1;text-shadow:0 0 16px currentColor}
+  18%{opacity:.22}
+  34%{opacity:1;text-shadow:0 0 18px currentColor}
+  52%{opacity:.28}
+  70%{opacity:1;text-shadow:0 0 20px currentColor}
+  100%{opacity:1;text-shadow:none}
+}
 .statusbar .unit{
   display:inline-flex;align-items:center;gap:7px;
   opacity:.38;transition:opacity .6s ease,color .6s ease;

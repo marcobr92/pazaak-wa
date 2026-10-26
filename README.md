@@ -4,6 +4,16 @@ Pazaak jogável no navegador. Regras e IA em WebAssembly (Rust, `no_std`), tela 
 
 Fan game, sem fins lucrativos. Pazaak e Star Wars pertencem à Lucasfilm / The Walt Disney Company.
 
+## Fluxo de trabalho
+
+- `develop` — trabalho do dia a dia. Todo push roda o CI.
+- `main` — protegida: não aceita push direto, só pull request com o check `motor wasm` verde.
+- Deploy — nenhum por enquanto.
+
+O CI (`.github/workflows/ci.yml`) compila o motor do zero, roda as 200 partidas de teste no
+binário recém-compilado **e** no commitado, falha se o wasm passar de 12 KB e avisa quando
+`web/wasm.js` (base64) diverge de `web/pazaak.wasm`.
+
 ## Rodar
 
 O site é estático: abrir `web/index.html` já funciona (o wasm vai embutido em base64 como fallback).
