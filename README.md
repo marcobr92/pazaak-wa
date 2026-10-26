@@ -19,10 +19,9 @@ Fan game, sem fins lucrativos. Pazaak e Star Wars pertencem à Lucasfilm / The W
 Regras completas, incluindo cartas avançadas: botão **REGRAS DO JOGO** na tela inicial.
 
 ## Modos
-
 | modo | o que é |
 |---|---|
-| **Aprenda a jogar** | partida contra um oponente fácil, com dicas na tela |
+| **Aprenda a jogar** | aula determinística: deck, ordem das cartas e oponente fixos, com o próximo clique destacado na tela |
 | **Campanha** | dez oponentes com decks próprios, ordem sorteada a cada partida |
 | **Desafio** | partidas seguidas até a primeira derrota |
 | **Criar seu deck** | dez cartas, no máximo duas de cada tipo; fica salvo no navegador |
@@ -113,11 +112,19 @@ cartas por lado, nenhuma partida em laço infinito, e só uma carta de mão por 
 O CI (`.github/workflows/ci.yml`) roda isso no wasm recém-compilado **e** no commitado, falha se o
 binário passar de 12 KB e avisa se o base64 ficou defasado.
 
+## Idiomas
+
+Seis, trocáveis pelo botão de globo no topo: **português** (padrão), inglês, espanhol, russo, chinês e
+japonês. A escolha fica salva no navegador.
+
+Todo texto de interface, alerta, regra e dica vem de `web/i18n.js` — um dicionário plano, uma chave por
+texto. `node tools/check-i18n.mjs` falha se faltar chave em algum idioma, e o CI roda isso a cada push.
+
 ## Estrutura
 
 ```
 engine/            motor em Rust (regras, estado, IA) — a verdade do jogo
-web/               index.html, style.css, app.js, pazaak.wasm, wasm.js
+web/               index.html, style.css, app.js, i18n.js, pazaak.wasm, wasm.js
 tools/serve.mjs    servidor estático para desenvolvimento
 tools/test-engine.mjs  teste de regras, sem navegador
 build.ps1          build + cópia do wasm + base64

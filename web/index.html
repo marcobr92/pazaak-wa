@@ -3,24 +3,34 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>PAZAAK // WA</title>
+<title>Pazaak WA</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%230a0f12'/%3E%3Cg fill='none' stroke='%23ff7a1a' stroke-width='5' stroke-linejoin='round' stroke-linecap='round'%3E%3Cpolygon points='50,12 80,30 80,70 50,88 20,70 20,30'/%3E%3Cpolygon points='50,32 65,41 65,59 50,68 35,59 35,41'/%3E%3Cline x1='50' y1='32' x2='50' y2='14'/%3E%3Cline x1='65' y1='41' x2='79' y2='31'/%3E%3Cline x1='65' y1='59' x2='79' y2='69'/%3E%3Cline x1='50' y1='68' x2='50' y2='86'/%3E%3Cline x1='35' y1='59' x2='21' y2='69'/%3E%3Cline x1='35' y1='41' x2='21' y2='31'/%3E%3C/g%3E%3C/svg%3E">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="scanlines" aria-hidden="true"></div>
 
 <header class="topbar">
-  <button id="btn-home" class="brand" title="voltar ao início"><span class="mark">◈</span> PAZAAK <span class="dim">//</span> WA</button>
+  <button id="btn-home" class="brand"><span class="mark">◈</span> PAZAAK <span class="dim">//</span> WA</button>
   <div class="topbar-right">
     <span class="sys-wrap">
       <button id="btn-sys" class="sys" aria-label="MAGI SYSTEM">MAGI SYSTEM</button>
     </span>
-    <button id="btn-mute" class="ghost small" aria-label="som">♪</button>
+    <button id="btn-lang" class="ghost small" aria-label="language">
+      <svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor"
+           stroke-width="1.2" stroke-linecap="round" aria-hidden="true">
+        <circle cx="8" cy="8" r="6.2"/>
+        <ellipse cx="8" cy="8" rx="2.7" ry="6.2"/>
+        <line x1="1.8" y1="8" x2="14.2" y2="8"/>
+      </svg>
+    </button>
+    <div id="lang-menu" class="audio-menu lang-menu hidden"></div>
+    <button id="btn-mute" class="ghost small" aria-label="sound">♪</button>
     <div id="audio-menu" class="audio-menu hidden">
-      <button data-audio="toggle">SILENCIAR</button>
-      <button data-audio="test">TESTAR ÁUDIO</button>
+      <button data-audio="toggle" data-i18n="audio.mute">SILENCIAR</button>
+      <button data-audio="test" data-i18n="audio.test">TESTAR ÁUDIO</button>
     </div>
-    <button id="btn-rules" class="ghost">REGRAS DO JOGO</button>
+    <button id="btn-rules" class="ghost" data-i18n="ui.rules">REGRAS DO JOGO</button>
   </div>
 </header>
 
@@ -29,45 +39,41 @@
   <section id="view-home" class="view">
     <div class="home-head">
       <h1>PAZAAK</h1>
-      <p class="sub">// simulação tática de cartas · <span id="sys-unit">caspar</span></p>
+      <p class="sub"><span data-i18n="home.sub">// simulação tática de cartas</span> · <span id="sys-unit">caspar</span></p>
     </div>
 
     <div class="modes">
       <button class="mode" data-mode="tutorial" data-num="01">
         <span class="mode-num">01</span>
-        <span class="mode-title">APRENDA A JOGAR</span>
-        <span class="mode-desc">partida guiada, sem pressa</span>
+        <span class="mode-title" data-i18n="home.learn.title">APRENDA A JOGAR</span>
+        <span class="mode-desc" data-i18n="home.learn.desc">partida guiada, sem pressa</span>
       </button>
       <button class="mode" data-mode="campaign" data-num="02">
         <span class="mode-num">02</span>
-        <span class="mode-title">CAMPANHA</span>
-        <span class="mode-desc">10 oponentes · ordem aleatória</span>
+        <span class="mode-title" data-i18n="home.campaign.title">CAMPANHA</span>
+        <span class="mode-desc" data-i18n="home.campaign.desc">10 oponentes · ordem aleatória</span>
       </button>
       <button class="mode" data-mode="challenge" data-num="03">
         <span class="mode-num">03</span>
-        <span class="mode-title">DESAFIO</span>
-        <span class="mode-desc">partidas infinitas até perder</span>
+        <span class="mode-title" data-i18n="home.challenge.title">DESAFIO</span>
+        <span class="mode-desc" data-i18n="home.challenge.desc">partidas infinitas até perder</span>
       </button>
     </div>
 
     <button id="btn-deck" class="mode mode-wide" data-num="04">
       <span class="mode-num">04</span>
-      <span class="mode-title">CRIAR SEU DECK</span>
-      <span class="mode-desc">dez cartas. escolha com cabeça.</span>
+      <span class="mode-title" data-i18n="home.deck.title">CRIAR SEU DECK</span>
+      <span class="mode-desc" data-i18n="home.deck.desc">dez cartas. escolha com cabeça.</span>
     </button>
 
-    <p class="disclaimer">
-      Projeto de fã, não oficial, sem fins lucrativos. Pazaak, Star Wars e todos os elementos
-      relacionados pertencem à Lucasfilm / The Walt Disney Company. Nenhum recurso é vendido,
-      doado ou monetizado.
-    </p>
+    <p class="disclaimer" data-i18n="home.disclaimer"></p>
   </section>
 
   <!-- ── CAMPANHA ─────────────────────────────────────────────────────────── -->
   <section id="view-campaign" class="view hidden">
     <div class="section-head">
-      <button class="ghost small" data-back>◀ VOLTAR</button>
-      <h2 id="camp-title">CAMPANHA</h2>
+      <button class="ghost small" data-back>◀ <span data-i18n="ui.back">VOLTAR</span></button>
+      <h2 id="camp-title" data-i18n="campaign.title">CAMPANHA</h2>
       <span id="camp-progress" class="dim"></span>
     </div>
     <ul id="ladder" class="ladder"></ul>
@@ -76,7 +82,7 @@
   <!-- ── MESA ─────────────────────────────────────────────────────────────── -->
   <section id="view-game" class="view hidden">
     <div class="game-top">
-      <button class="ghost small" data-back>◀ SAIR</button>
+      <button class="ghost small" data-back>◀ <span data-i18n="ui.exit">SAIR</span></button>
       <div class="opp-info">
         <span id="opp-name">—</span>
       </div>
@@ -84,14 +90,14 @@
 
     <div class="board">
       <div class="side" id="side-p">
-        <div class="side-label"><span>VOCÊ</span><span class="pips" id="p-pips"></span></div>
+        <div class="side-label"><span data-i18n="ui.you">VOCÊ</span><span class="pips" id="p-pips"></span></div>
         <div id="p-cards" class="cards"></div>
         <div id="p-sum" class="sum p">0</div>
       </div>
 
       <div class="center">
         <div id="set-index" class="set-index">SET 0</div>
-        <div class="center-label">ÚLTIMA COMPRA</div>
+        <div class="center-label" data-i18n="ui.lastDraw">ÚLTIMA COMPRA</div>
         <div id="last-card" class="last-card">—</div>
         <div id="turn-tag" class="turn-tag">—</div>
         <div id="turn-clock" class="turn-clock hidden">
@@ -103,51 +109,69 @@
       </div>
 
       <div class="side" id="side-o">
-        <div class="side-label"><span>OPONENTE</span><span class="pips" id="o-pips"></span></div>
+        <div class="side-label"><span data-i18n="ui.opponent">OPONENTE</span><span class="pips" id="o-pips"></span></div>
         <div id="o-cards" class="cards"></div>
         <div id="o-sum" class="sum o">0</div>
       </div>
     </div>
 
     <div class="hand-wrap">
-      <div class="hand-label">SUA MÃO</div>
+      <div class="hand-label" data-i18n="ui.yourHand">SUA MÃO</div>
       <div id="hand" class="hand"></div>
     </div>
 
     <div class="actions">
-      <button id="btn-end" class="act">ENCERRAR TURNO</button>
-      <button id="btn-pause" class="act act-icon" aria-label="pausar o tempo">II</button>
-      <button id="btn-stand" class="act act-alt">PARAR</button>
+      <button id="btn-end" class="act" data-i18n="ui.endTurn">ENCERRAR TURNO</button>
+      <button id="btn-pause" class="act act-icon" data-i18n="ui.pause">II</button>
+      <button id="btn-stand" class="act act-alt" data-i18n="ui.stand">PARAR</button>
     </div>
 
     <div id="banner" class="banner hidden">
       <div class="banner-title"></div>
       <div class="banner-sub"></div>
-      <button class="act" id="banner-btn">CONTINUAR</button>
+      <div class="banner-note hidden"></div>
+      <button class="act" id="banner-btn" data-i18n="ui.continue">CONTINUAR</button>
     </div>
   </section>
 
   <!-- ── DECK ─────────────────────────────────────────────────────────────── -->
   <section id="view-deck" class="view hidden">
     <div class="section-head">
-      <button class="ghost small" data-back>◀ VOLTAR</button>
-      <h2>CRIAR SEU DECK</h2>
+      <button class="ghost small" data-back>◀ <span data-i18n="ui.back">VOLTAR</span></button>
+      <h2 data-i18n="deck.title">CRIAR SEU DECK</h2>
       <span id="deck-count" class="dim">0 / 10</span>
     </div>
-    <p class="deck-help">Dez cartas. Máximo de duas cópias de cada tipo. O deck vale para todos os modos.</p>
+    <p class="deck-help" data-i18n="deck.help"></p>
     <div id="deck-grid" class="deck-grid"></div>
     <div class="deck-footer">
-      <button id="btn-deck-save" class="act" disabled>SALVAR DECK</button>
-      <button id="btn-deck-clear" class="act act-alt">ZERAR</button>
-      <button id="btn-deck-reset" class="act act-alt">RESTAURAR PADRÃO</button>
+      <button id="btn-deck-save" class="act" disabled data-i18n="deck.save">SALVAR DECK</button>
+      <button id="btn-deck-clear" class="act act-alt" data-i18n="deck.clear">ZERAR</button>
+      <button id="btn-deck-reset" class="act act-alt" data-i18n="deck.reset">RESTAURAR PADRÃO</button>
     </div>
   </section>
 </main>
 
+<!-- ── AULA ────────────────────────────────────────────────────────────────── -->
+<div id="tutorial-modal" class="coin-modal hidden">
+  <div class="coin-box intro-box">
+    <p class="coin-title" data-i18n="intro.tag">AULA DE PAZAAK</p>
+    <h2 class="intro-head" data-i18n="intro.head">Chegue perto de 20 sem estourar</h2>
+    <ul class="intro-list">
+      <li data-i18n="intro.li1"></li>
+      <li data-i18n="intro.li2"></li>
+      <li data-i18n="intro.li3"></li>
+      <li data-i18n="intro.li4"></li>
+      <li data-i18n="intro.li5"></li>
+    </ul>
+    <p class="intro-note" data-i18n="intro.note"></p>
+    <button id="btn-tutorial-start" class="act" data-i18n="intro.start">COMEÇAR A AULA</button>
+  </div>
+</div>
+
 <!-- ── MOEDA ───────────────────────────────────────────────────────────────── -->
 <div id="coin-modal" class="coin-modal hidden">
   <div class="coin-box">
-    <p class="coin-title">SORTEIO DE INÍCIO</p>
+    <p class="coin-title" data-i18n="coin.title">SORTEIO DE INÍCIO</p>
     <div class="coin-stage">
       <div class="coin" id="coin">
         <div class="coin-face front">
@@ -182,10 +206,10 @@
         </div>
       </div>
     </div>
-    <p class="coin-line" id="coin-line">escolha seu lado</p>
+    <p class="coin-line" id="coin-line" data-i18n="coin.pick">escolha seu lado</p>
     <div class="coin-actions" id="coin-actions">
-      <button class="act" data-pick="0">CARA · REPÚBLICA</button>
-      <button class="act act-alt" data-pick="1">COROA · IMPÉRIO</button>
+      <button class="act" data-pick="0" data-i18n="coin.heads">CARA · REPÚBLICA</button>
+      <button class="act act-alt" data-pick="1" data-i18n="coin.tails">COROA · IMPÉRIO</button>
     </div>
   </div>
 </div>
@@ -194,62 +218,32 @@
 <div id="modal-rules" class="modal hidden">
   <div class="modal-box">
     <div class="modal-head">
-      <h2>REGRAS DO JOGO</h2>
-      <button id="btn-rules-close" class="ghost small">FECHAR ✕</button>
+      <h2 data-i18n="ui.rules">REGRAS DO JOGO</h2>
+      <button id="btn-rules-close" class="ghost small" data-i18n="ui.close">FECHAR ✕</button>
     </div>
-    <div class="modal-body">
-      <h3>Objetivo</h3>
-      <p>Chegar a 20, ou o mais perto possível sem estourar. Quem ganha <strong>3 sets</strong> ganha a partida.</p>
-      <p>Quem começa é decidido no sorteio da moeda. O vencedor de cada set começa o set seguinte.</p>
-
-      <h3>Baralho principal</h3>
-      <p>40 cartas: quatro de cada valor, de 1 a 10. Verde. Compra-se uma por turno.</p>
-
-      <h3>Baralho lateral</h3>
-      <p>Dez cartas escolhidas por você. No início da partida, <strong>quatro</strong> são sorteadas e formam sua mão. Cada carta da mão só pode ser usada <strong>uma vez por partida</strong> — e a mão vale para todos os sets.</p>
-
-      <h3>Turno</h3>
-      <ol>
-        <li>Você compra uma carta do baralho principal.</li>
-        <li>Pode jogar <strong>uma</strong> carta da mão (opcional).</li>
-        <li>Depois, escolhe <strong>encerrar</strong> (compra de novo no próximo turno) ou <strong>parar</strong>.</li>
-      </ol>
-      <p>Se passar de 20 no fim do turno, estoura e perde o set. Uma carta negativa jogada depois da compra ainda salva o turno.</p>
-
-      <h3>Tipos de carta</h3>
-      <ul>
-        <li><b class="c-plus">+</b> soma o valor.</li>
-        <li><b class="c-minus">−</b> subtrai o valor.</li>
-        <li><b class="c-pm">±</b> você decide, na hora de jogar, se soma ou subtrai.</li>
-        <li><b class="c-gold">FLIP</b> inverte o sinal de todas as cartas 2 e 4 (ou 3 e 6) na mesa, dos dois lados.</li>
-        <li><b class="c-gold">2×</b> dobra a última carta que você comprou do baralho principal.</li>
-        <li><b class="c-gold">TIE</b> vale ±1 e, se houver empate, o desempate é seu.</li>
-      </ul>
-
-      <h3>Fim do set</h3>
-      <ul>
-        <li>Ganha quem tiver o maior valor sem estourar, depois que os dois param.</li>
-        <li>Estourou, perde o set.</li>
-        <li>Nove cartas na mesa sem estourar: vitória automática.</li>
-        <li>Empate não pontua: joga-se outro set. Quem começou o set empatado começa o próximo.</li>
-      </ul>
-
-      <h3>Aviso</h3>
-      <p>Fan game sem fins lucrativos. Pazaak e Star Wars pertencem à Lucasfilm / Disney. Este projeto
-      não vende, não aceita doação e não exibe anúncio.</p>
-    </div>
+    <div class="modal-body" id="rules-body"></div>
   </div>
 </div>
 
+<div id="guide-arrow" class="guide-arrow"><span data-i18n="tut.guide">clique aqui</span><i>▼</i></div>
 <div id="tipbox" class="tipbox" role="tooltip"></div>
 
 <footer class="statusbar">
   <span class="unit" data-unit="caspar"><span class="beat"></span>CASPAR</span>
   <span class="unit" data-unit="balthasar"><span class="beat"></span>BALTHASAR</span>
   <span class="unit" data-unit="melchior"><span class="beat"></span>MELCHIOR</span>
-  <span class="right">SYNC <span id="sync-value">100%</span> · LINK 01</span>
+  <span class="right">
+    SYNC <span id="sync-value">100%</span> · LINK <span id="link-id">00</span>
+    <a id="repo-link" class="repo-link" href="https://github.com/marcobr92/pazaak-wa/blob/main/README.md"
+       target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+      <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true">
+        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+      </svg>
+    </a>
+  </span>
 </footer>
 
+<script src="i18n.js"></script>
 <script src="wasm.js"></script>
 <script src="app.js"></script>
 </body>

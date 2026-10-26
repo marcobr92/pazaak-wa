@@ -64,19 +64,34 @@ const OPPONENTS = [
     deck: [C(T.PM,6),C(T.PM,6),C(T.DOUBLE),C(T.DOUBLE),C(T.FLIP24),C(T.TIE,1),C(T.MINUS,6),C(T.PLUS,6),C(T.PM,5),C(T.FLIP36)] },
 ];
 
-/* ── falas fixas dos oponentes (aparecem no balão do nome) ───────────────── */
-const OPPONENT_LINES = {
-  'K-7 · FERRO-VELHO': 'Droide de carga que aprendeu pazaak esperando peça. Não tem pressa e não tem medo de estourar.',
-  'VEX CORREL': 'Contrabandista. Aposta alto justamente quando o deck está ruim — e às vezes dá certo.',
-  'SARNA VELL': 'Mercenária. Joga como atira: sem aviso e sem segunda chance.',
-  'DORN KALEK': 'Piloto de carga. Conta as cartas do baralho principal de cabeça, por tédio.',
-  'ILYRA SAN': 'Contadora. Prefere perder pouco a ganhar com risco.',
-  'BRASK ORDO': 'Caçador. Espera você parar para só então decidir o set.',
-  'NIMA TESH': 'Vidente. Diz que lê o baralho; no fundo, só blefa bem.',
-  'HASK VORN': 'Capitão. Joga pelo placar, não pela mão.',
-  'ZETH ARU': 'Mestre de mesa. Já reconhece a cara de quem tem ±6 na mão.',
-  'MELCHIOR': 'Núcleo lógico. Não sente nada, o que é uma vantagem injusta.',
+/* ── fala fixa de cada oponente (chave do dicionário) ────────────────────── */
+const OPP_LINES = {
+  'K-7 · FERRO-VELHO': 'opp.k7',
+  'VEX CORREL': 'opp.vex',
+  'SARNA VELL': 'opp.sarna',
+  'DORN KALEK': 'opp.dorn',
+  'ILYRA SAN': 'opp.ilyra',
+  'BRASK ORDO': 'opp.brask',
+  'NIMA TESH': 'opp.nima',
+  'HASK VORN': 'opp.hask',
+  'ZETH ARU': 'opp.zeth',
+  'MELCHIOR': 'opp.melchior',
 };
+
+/* ── tutorial: semente, decks e oponente fixos ───────────────────────────── */
+const TUTORIAL = {
+  seed: 626,
+  deck: [
+    C(T.PLUS, 4), C(T.PLUS, 2), C(T.MINUS, 3), C(T.PM, 2), C(T.PLUS, 5),
+    C(T.MINUS, 1), C(T.PLUS, 1), C(T.MINUS, 2), C(T.PLUS, 3), C(T.PM, 1),
+  ],
+  oppDeck: [
+    C(T.PLUS, 1), C(T.PLUS, 2), C(T.PLUS, 3), C(T.PLUS, 4), C(T.MINUS, 1),
+    C(T.MINUS, 2), C(T.PM, 1), C(T.PM, 2), C(T.PLUS, 5), C(T.MINUS, 3),
+  ],
+};
+
+const TUTORIAL_OPP = { name: 'K-7 · FERRO-VELHO', tag: 'instrutor', diff: 0, deck: TUTORIAL.oppDeck };
 
 /* ── estado da tela ──────────────────────────────────────────────────────── */
 const S = {
@@ -196,7 +211,7 @@ const sfx = {
     btn.classList.toggle('muted', this.muted);
     btn.setAttribute('aria-label', this.muted ? 'som desligado' : 'som ligado');
     const tog = $('#audio-menu [data-audio="toggle"]');
-    if (tog) tog.textContent = this.muted ? 'ATIVAR SOM' : 'SILENCIAR';
+    if (tog) tog.textContent = this.muted ? t('audio.unmute') : t('audio.mute');
   },
 
   /* Teste toca mesmo se estiver mudo, e devolve o estado depois. */
@@ -308,7 +323,7 @@ function turnTimeout() {
   S.pending = -1;
   w.pa_end_turn();
   renderTable();
-  log('tempo esgotado — turno encerrado');
+  log(t('log.timeout'));
   loop();
 }
 
@@ -409,14 +424,14 @@ function opponentTip() {
   const opp = S.opp;
   if (!opp) return { head: 'oponente', body: '' };
   const short = opp.name.split('·')[0].trim();
-  const parts = { head: short, body: OPPONENT_LINES[opp.name] || 'sem informação.' };
+  const parts = { head: short, body: t(OPP_LINES[opp.name] || 'opp.k7') };
   if (S.mode === 'campaign' && S.order.length) {
     parts.items = S.order.map((idx, i) => {
       const o = OPPONENTS[idx];
       const done = i < S.step;
       return {
         text: String(i + 1).padStart(2, '0') + ' ' + o.name.split('·')[0].trim(),
-        tag: done ? 'vencido' : i === S.step ? 'agora' : '',
+        tag: done ? t('tip.opp.won') : i === S.step ? t('tip.opp.now') : '',
         dim: done,
       };
     });
@@ -425,24 +440,24 @@ function opponentTip() {
 }
 
 function cardTip(code) {
-  const t = code >> 4;
+  const ct = code >> 4;
   const v = code & 0xF;
-  const adv = 'carta avançada · KOTOR II';
-  switch (t) {
+  const adv = t('card.tip.advanced');
+  switch (ct) {
     case T.PLUS:
-      return { head: '+' + v, body: `soma ${v} ao seu total no set.` };
+      return { head: '+' + v, body: t('card.tip.plus', { v }) };
     case T.MINUS:
-      return { head: '−' + v, body: `subtrai ${v} do seu total. serve para desfazer estouro.` };
+      return { head: '−' + v, body: t('card.tip.minus', { v }) };
     case T.PM:
-      return { head: '±' + v, body: `ao jogar, você escolhe: soma ${v} ou subtrai ${v}.` };
+      return { head: '±' + v, body: t('card.tip.pm', { v }) };
     case T.FLIP24:
-      return { head: '2&4', body: 'inverte o sinal de todas as cartas 2 e 4 na mesa — inclusive as do oponente.', adv };
+      return { head: '2&4', body: t('card.tip.flip24'), adv };
     case T.FLIP36:
-      return { head: '3&6', body: 'inverte o sinal de todas as cartas 3 e 6 na mesa — inclusive as do oponente.', adv };
+      return { head: '3&6', body: t('card.tip.flip36'), adv };
     case T.DOUBLE:
-      return { head: '2×', body: 'dobra a última carta que você comprou do baralho principal.', adv };
+      return { head: '2×', body: t('card.tip.double'), adv };
     case T.TIE:
-      return { head: 'TIE', body: 'vale ±1 e, se o set empatar, a vitória é sua.', adv };
+      return { head: 'TIE', body: t('card.tip.tie'), adv };
     default:
       return { head: cardLabel(code), body: '' };
   }
@@ -471,6 +486,20 @@ function show(view) {
   for (const el of document.querySelectorAll('.view')) el.classList.add('hidden');
   const target = document.getElementById('view-' + view);
   if (target) target.classList.remove('hidden');
+  paintLink();
+}
+
+/* telemetria do rodapé: o "link" acompanha a tela/modo em uso */
+const LINK_VIEW = { home: '00', campaign: '02', deck: '04', game: null };
+const LINK_MODE = { tutorial: '01', campaign: '02', challenge: '03' };
+
+function paintLink() {
+  const el = $('#link-id');
+  if (!el) return;
+  let n;
+  if (S.view === 'game') n = LINK_MODE[S.mode] || '00';
+  else n = LINK_VIEW[S.view] || '00';
+  el.textContent = n;
 }
 
 /* ── render da mesa ──────────────────────────────────────────────────────── */
@@ -531,22 +560,24 @@ function renderTable() {
   pips($('#o-pips'), w.pa_sets_o());
 
   const setIdx = $('#set-index');
-  if (setIdx) setIdx.textContent = 'SET ' + w.pa_set_no();
+  if (setIdx) setIdx.textContent = t('ui.set', { n: w.pa_set_no() });
 
   const waiting = (phase === 0 || phase === 1) && turn === 1;
   const gameView = $('#view-game');
   if (gameView) gameView.classList.toggle('waiting', waiting);
 
   const myTurn = phase === 1 && turn === 0;
-  if (myTurn && !S.clock.id) startClock();
+  if (S.mode === 'tutorial') {
+    if (S.clock.id) stopClock();
+  } else if (myTurn && !S.clock.id) startClock();
   else if (!myTurn && S.clock.id) stopClock();
 
   const tag = $('#turn-tag');
   if (tag) {
     const short = S.opp && S.opp.name ? S.opp.name.split('·')[0].trim() : 'oponente';
     tag.textContent =
-      phase === 3 ? 'PARTIDA ENCERRADA' : phase === 2 ? 'SET ENCERRADO' :
-      turn === 0 ? 'É A SUA VEZ' : `É A VEZ DO OPONENTE ${short}`;
+      phase === 3 ? t('ui.matchOver') : phase === 2 ? t('ui.setOver') :
+      turn === 0 ? t('ui.yourTurn') : t('ui.oppTurn', { name: short });
     tag.classList.toggle('mine', phase === 1 && turn === 0);
   }
   const sideP = $('#side-p');
@@ -556,21 +587,80 @@ function renderTable() {
 
   renderHand();
   updateActions();
+  renderGuide(phase, turn);
+}
 
-  const hint = $('#hint');
-  if (hint) {
-    let txt = '';
-    if (S.mode === 'tutorial') {
-      if (phase === 3) txt = '';
-      else if (phase === 0 && turn === 0) txt = 'comprando…';
-      else if (phase === 1 && turn === 0) {
-        txt = w.pa_played() === 1
-          ? 'carta jogada. encerrar turno compra outra; parar guarda o total.'
-          : 'some com a mão se precisar, ou encerre o turno. passar de 20 estoura.';
-      } else txt = 'o oponente joga. observe o total dele.';
-    }
-    hint.textContent = txt;
+/* ── tutorial: mensagem + destaque do próximo clique ─────────────────────── */
+let guideTarget = null;
+
+function setGuide(el) {
+  const arrow = $('#guide-arrow');
+  if (guideTarget === el) {
+    if (el) positionArrow(el);
+    return;
   }
+  if (guideTarget) guideTarget.classList.remove('guide');
+  guideTarget = el;
+  if (!el) { if (arrow) arrow.classList.remove('on'); return; }
+  el.classList.add('guide');
+  if (arrow) {
+    arrow.classList.add('on');
+    positionArrow(el);
+  }
+}
+
+function positionArrow(el) {
+  const arrow = $('#guide-arrow');
+  if (!arrow) return;
+  const r = el.getBoundingClientRect();
+  const w = arrow.offsetWidth || 90;
+  const h = arrow.offsetHeight || 30;
+  const left = Math.max(8, Math.min(window.innerWidth - w - 8, r.left + r.width / 2 - w / 2));
+  // encosta a ponta dentro do alvo para não pairar sobre o elemento vizinho
+  let top = r.top - h + 7;
+  const flip = top < 8;
+  if (flip) top = r.bottom - 7;
+  arrow.classList.toggle('flip', flip);
+  arrow.style.left = Math.round(left) + 'px';
+  arrow.style.top = Math.round(top) + 'px';
+}
+
+function renderGuide(phase, turn) {
+  const hint = $('#hint');
+  const tut = S.mode === 'tutorial';
+  hint?.classList.toggle('guided', tut);
+  if (!tut) { setGuide(null); if (hint) hint.textContent = ''; return; }
+
+  const w = S.wasm;
+  let text = '';
+  let target = null;
+
+  if (w.pa_set_no() > 1) {
+    text = t('tut.afterFirst');
+  } else if (phase === 3) {
+    text = '';
+  } else if (phase === 2) {
+    text = t('tut.setEnd');
+  } else if (phase === 0 && turn === 1) {
+    text = t('tut.opponent');
+    target = null;
+  } else if (phase === 1 && turn === 0) {
+    if (w.pa_played() === 1) {
+      text = t('tut.played');
+      target = $('#btn-stand');
+    } else if (w.pa_p_sum() === 16) {
+      text = t('tut.sixteen');
+      target = document.querySelector('#hand .card[data-code="4"]');
+    } else {
+      text = w.pa_set_no() === 1 && w.pa_sets_p() === 1 ? t('tut.bonus') : t('tut.draw');
+      target = $('#btn-end');
+    }
+  } else {
+    text = t('tut.generic');
+  }
+
+  if (hint) hint.textContent = text;
+  setGuide(target);
 }
 
 function renderHand() {
@@ -588,6 +678,7 @@ function renderHand() {
       continue;
     }
     const el = cardEl(code);
+    el.dataset.code = String(code);
     attachTip(el, () => cardTip(code), { tabbable: true });
     if (locked) {
       el.classList.add('used');
@@ -640,7 +731,7 @@ function endTurn() {
   const w = S.wasm;
   S.pending = -1;
   if (!w.pa_end_turn()) return;
-  log('você encerrou o turno');
+  log(t('log.youEnd'));
   renderTable();
   loop();
 }
@@ -649,7 +740,7 @@ function stand() {
   const w = S.wasm;
   S.pending = -1;
   if (!w.pa_stand()) return;
-  log('você parou');
+  log(t('log.youStand'));
   renderTable();
   loop();
 }
@@ -687,25 +778,16 @@ async function loop() {
         renderTable();
         const sw = w.pa_set_winner();
         const name = S.opp && S.opp.name ? S.opp.name.split('·')[0].trim() : 'oponente';
-        let title, sub;
-        if (sw === 0) {
-          title = 'VOCÊ VENCEU ESSE SET';
-          sub = `você ${w.pa_sets_p()} de 3 · ${name} ${w.pa_sets_o()} de 3`;
-          sfx.setWin();
-        } else if (sw === 1) {
-          title = `${name} VENCEU ESSE SET`;
-          sub = `você ${w.pa_sets_p()} de 3 · ${name} ${w.pa_sets_o()} de 3`;
-          sfx.setLose();
-        } else {
-          title = 'SET EMPATADO';
-          sub = `ninguém pontuou · você ${w.pa_sets_p()} de 3 · ${name} ${w.pa_sets_o()} de 3`;
-          sfx.tie();
-        }
-        await flash(title, sub);
+        const note = t('set.score', { p: w.pa_sets_p(), o: w.pa_sets_o(), name });
+        let title;
+        if (sw === 0) { title = t('set.win'); sfx.setWin(); }
+        else if (sw === 1) { title = t('set.lose', { name }); sfx.setLose(); }
+        else { title = t('set.tie'); sfx.tie(); }
+        await flash(title, setResultLine(sw), note);
         if (S.view !== 'game') return;
         w.pa_next_set();
         renderTable();
-        log(`set ${w.pa_set_no()} — cartas na mesa`);
+        log(t('log.setFresh', { n: w.pa_set_no() }));
         continue;
       }
 
@@ -713,7 +795,7 @@ async function loop() {
         if (w.pa_turn() === 0) {
           w.pa_begin_turn();
           renderTable();
-          log('você comprou');
+          log(t('log.youDraw'));
           await wait(420);
           continue; // estado pode ter mudado durante a animação
         }
@@ -723,7 +805,7 @@ async function loop() {
         w.pa_ai_turn();
         const act = w.pa_log();
         if (act === 2) sfx.card();
-        log(act === 2 ? 'oponente jogou carta' : act === 3 ? 'oponente parou' : 'oponente comprou e encerrou');
+        log(act === 2 ? t('log.oppCard') : act === 3 ? t('log.oppStand') : t('log.oppEnd'));
         renderTable();
         await wait(380);
         continue;
@@ -745,13 +827,41 @@ async function loop() {
   }
 }
 
-function flash(title, sub) {
+function flash(title, sub, note) {
   const b = $('#banner');
   b.querySelector('.banner-title').textContent = title;
-  b.querySelector('.banner-sub').textContent = sub;
+  b.querySelector('.banner-sub').textContent = sub || '';
+  const noteEl = b.querySelector('.banner-note');
+  if (noteEl) {
+    noteEl.textContent = note || '';
+    noteEl.classList.toggle('hidden', !note);
+  }
   b.querySelector('#banner-btn').classList.add('hidden');
   b.classList.remove('hidden');
-  return wait(1900).then(() => b.classList.add('hidden'));
+  return wait(2100).then(() => b.classList.add('hidden'));
+}
+
+function setResultLine(sw) {
+  const w = S.wasm;
+  const ps = w.pa_p_sum();
+  const os = w.pa_o_sum();
+  const nome = S.opp && S.opp.name ? S.opp.name.split('·')[0].trim() : 'oponente';
+  const pBust = ps > 20;
+  const oBust = os > 20;
+  const pFull = w.pa_p_n() >= 9;
+  const oFull = w.pa_o_n() >= 9;
+
+  if (sw === 0) {
+    if (oBust) return t('set.oppBust', { p: ps, o: os, name: nome });
+    if (pFull) return t('set.fullYou', { p: ps, o: os, name: nome });
+    return t('set.bothStand', { p: ps, o: os, name: nome });
+  }
+  if (sw === 1) {
+    if (pBust) return t('set.youBust', { p: ps, o: os, name: nome });
+    if (oFull) return t('set.fullOpp', { p: ps, o: os, name: nome });
+    return t('set.bothStand', { p: ps, o: os, name: nome });
+  }
+  return t('set.tieLine', { p: ps, o: os, name: nome });
 }
 
 function banner(title, sub, btnLabel, onBtn) {
@@ -773,16 +883,16 @@ function matchOver() {
 
   if (S.mode === 'campaign') {
     if (win) {
-      banner('FASE LIMPA', `${S.opp.name} derrotado · sets ${w.pa_sets_p()} de 3`, 'PRÓXIMO', () => {
+      banner(t('campaign.stageClear'), t('campaign.stageClearSub', { name: S.opp.name, n: w.pa_sets_p() }), t('campaign.next'), () => {
         S.step++;
         if (S.step >= OPPONENTS.length) {
-          banner('CAMPANHA CONCLUÍDA', 'os dez caíram', 'VOLTAR AO INÍCIO', () => goHome());
+          banner(t('campaign.cleared'), t('campaign.clearedSub'), t('campaign.home'), () => goHome());
         } else {
           startCampaignMatch();
         }
       });
     } else {
-      banner('DERROTA', `${S.opp.name} levou a melhor`, 'TENTAR DE NOVO', () => startCampaignMatch());
+      banner(t('campaign.defeat'), t('campaign.defeatSub', { name: S.opp.name }), t('campaign.retry'), () => startCampaignMatch());
     }
     return;
   }
@@ -790,18 +900,18 @@ function matchOver() {
   if (S.mode === 'challenge') {
     if (win) {
       S.streak++;
-      banner('VITÓRIA', `sequência: ${S.streak}`, 'PRÓXIMO DESAFIANTE', () => startChallengeMatch());
+      banner(t('challenge.win'), t('challenge.winSub', { n: S.streak }), t('challenge.next'), () => startChallengeMatch());
     } else {
       const streak = S.streak;
       S.streak = 0;
-      banner('FIM DA LINHA', `você parou em ${streak} ${streak === 1 ? 'vitória' : 'vitórias'}`, 'RECOMEÇAR', () => {
+      banner(t('challenge.over'), t('challenge.overSub', { n: streak }), t('challenge.restart'), () => {
         startChallengeMatch();
       });
     }
     return;
   }
 
-  banner(win ? 'VITÓRIA' : 'DERROTA', '', 'VOLTAR', () => goHome());
+  banner(win ? t('challenge.win') : t('campaign.defeat'), '', t('ui.back'), () => goHome());
 }
 
 /* ── partidas ────────────────────────────────────────────────────────────── */
@@ -822,9 +932,9 @@ function blankTable() {
   const last = $('#last-card');
   if (last) last.textContent = '—';
   const tag = $('#turn-tag');
-  if (tag) { tag.textContent = 'SORTEIO'; tag.classList.remove('mine'); }
+  if (tag) { tag.textContent = t('ui.shuffle'); tag.classList.remove('mine'); }
   const setIdx = $('#set-index');
-  if (setIdx) setIdx.textContent = 'SET 1';
+  if (setIdx) setIdx.textContent = t('ui.set', { n: 1 });
   const hand = $('#hand');
   if (hand) {
     hand.replaceChildren();
@@ -854,7 +964,7 @@ function openCoin() {
   coin.style.transform = 'rotateY(0deg)';
   void coin.offsetWidth;
   coin.style.transition = '';
-  line.textContent = 'escolha seu lado';
+  line.textContent = t('coin.pick');
   actions.classList.remove('hidden');
   modal.classList.remove('hidden');
 }
@@ -872,12 +982,12 @@ function resolveCoin(pick) {
   sfx.coin();
 
   coin.style.transform = `rotateY(${5 * 360 + (side === 1 ? 180 : 0)}deg)`;
-  line.textContent = 'girando…';
+  line.textContent = t('coin.spin');
 
   setTimeout(() => {
-    const face = side === 0 ? 'cara' : 'coroa';
+    const face = side === 0 ? t('coin.headsFace') : t('coin.tailsFace');
     const rival = S.opp ? S.opp.name.split('·')[0].trim() : 'oponente';
-    line.textContent = `${face} · ${won ? 'você começa' : rival + ' começa'}`;
+    line.textContent = `${face} · ${won ? t('coin.youStart') : t('coin.oppStarts', { name: rival })}`;
     setTimeout(() => {
       const modal = $('#coin-modal');
       if (modal) modal.classList.add('hidden');
@@ -889,9 +999,15 @@ function resolveCoin(pick) {
 function startWithFirst(first) {
   if (S.view !== 'game' || !S.opp) return;
   const w = S.wasm;
-  w.pa_start_match(seedNow(), S.opp.diff, first);
+  const tut = S.mode === 'tutorial';
+  w.pa_start_match(tut ? TUTORIAL.seed : seedNow(), S.opp.diff, first);
+  if (tut) {
+    // aula: o set de vantagem é dado, não conquistado
+    w.pa_grant_set(0);
+    log(t('log.bonus'));
+  }
   renderTable();
-  log('set 1 — ' + S.opp.name);
+  log(t('log.setStart', { n: 1, name: S.opp.name }));
   loop();
 }
 
@@ -901,15 +1017,17 @@ function prepareMatch(opp) {
   S.coinPending = false;
   S.reentry = false;
   LOG.length = 0;
+  const tut = S.mode === 'tutorial';
   const w = S.wasm;
   for (let i = 0; i < 10; i++) {
-    w.pa_set_deck(i, S.deck[i] || 0);
-    w.pa_set_opp_deck(i, opp.deck[i] || 0);
+    w.pa_set_deck(i, tut ? TUTORIAL.deck[i] : (S.deck[i] || 0));
+    w.pa_set_opp_deck(i, tut ? TUTORIAL.oppDeck[i] : (opp.deck[i] || 0));
   }
   $('#opp-name').textContent = opp.name;
   show('game');
   blankTable();
-  openCoin();
+  if (tut) startWithFirst(0);
+  else openCoin();
 }
 
 function startCampaignMatch() {
@@ -950,12 +1068,61 @@ function toggleAudioMenu() {
   else closeAudioMenu();
 }
 
+/* ── menu de idiomas ─────────────────────────────────────────────────────── */
+function buildLangMenu() {
+  const menu = $('#lang-menu');
+  if (!menu) return;
+  menu.replaceChildren();
+  for (const lang of LANGS) {
+    const b = document.createElement('button');
+    b.dataset.lang = lang.code;
+    b.textContent = lang.label;
+    if (lang.code === currentLang()) b.classList.add('active');
+    menu.appendChild(b);
+  }
+}
+
+function openLangMenu() {
+  const menu = $('#lang-menu');
+  const btn = $('#btn-lang');
+  if (!menu || !btn) return;
+  buildLangMenu();
+  const r = btn.getBoundingClientRect();
+  menu.classList.remove('hidden');
+  const w = menu.offsetWidth || 158;
+  const left = Math.max(8, Math.min(window.innerWidth - w - 8, r.right - w));
+  menu.style.left = Math.round(left) + 'px';
+  menu.style.top = Math.round(r.bottom + 8) + 'px';
+}
+
+function closeLangMenu() {
+  const menu = $('#lang-menu');
+  if (menu) menu.classList.add('hidden');
+}
+
+function toggleLangMenu() {
+  const menu = $('#lang-menu');
+  if (!menu) return;
+  if (menu.classList.contains('hidden')) openLangMenu();
+  else closeLangMenu();
+}
+
+function onLangChange() {
+  sfx.paintMute();
+  buildLangMenu();
+  if (S.view === 'game' && S.wasm) renderTable();
+  if (S.view === 'campaign') renderLadder();
+  if (S.view === 'deck') renderDeck();
+}
+
 function goHome() {
   stopClock();
   S.pending = -1;
   S.coinPending = false;
   const modal = $('#coin-modal');
   if (modal) modal.classList.add('hidden');
+  const tutModal = $('#tutorial-modal');
+  if (tutModal) tutModal.classList.add('hidden');
   S.mode = null;
   S.opp = null;
   show('home');
@@ -984,10 +1151,10 @@ function renderLadder() {
     li.className = i < S.step ? 'done' : i === S.step ? 'current' : '';
     li.innerHTML = `<span class="stage">${String(i + 1).padStart(2, '0')}</span>
       <span class="who">${o.name}</span>
-      <span class="tag">${i < S.step ? 'VENCIDO' : i === S.step ? 'EM CURSO' : o.tag}</span>`;
+      <span class="tag">${i < S.step ? t('campaign.done') : i === S.step ? t('campaign.current') : o.tag}</span>`;
     ul.appendChild(li);
   });
-  $('#camp-progress').textContent = `${S.step} / ${OPPONENTS.length}`;
+  $('#camp-progress').textContent = t('campaign.progress', { done: S.step, total: OPPONENTS.length });
 }
 
 /* ── deck builder ────────────────────────────────────────────────────────── */
@@ -1036,7 +1203,7 @@ function renderDeck() {
     grid.appendChild(cell);
   }
   const total = deckTotal();
-  $('#deck-count').textContent = `${total} / 10`;
+  $('#deck-count').textContent = t('deck.count', { n: total });
   $('#btn-deck-save').disabled = total !== 10;
 }
 
@@ -1166,7 +1333,7 @@ function bind() {
       const mode = btn.dataset.mode;
       if (mode === 'tutorial') {
         S.mode = 'tutorial';
-        prepareMatch(OPPONENTS[0]);
+        $('#tutorial-modal').classList.remove('hidden');
       } else if (mode === 'campaign') {
         startCampaign();
       } else if (mode === 'challenge') {
@@ -1176,6 +1343,11 @@ function bind() {
       }
     });
   }
+
+  $('#btn-tutorial-start').addEventListener('click', () => {
+    $('#tutorial-modal').classList.add('hidden');
+    prepareMatch(TUTORIAL_OPP);
+  });
 
   $('#btn-deck').addEventListener('click', openDeck);
   $('#btn-deck-clear').addEventListener('click', () => {
@@ -1204,17 +1376,30 @@ function bind() {
   $('#btn-pause').addEventListener('click', togglePause);
 
   attachTip($('#btn-end'), () => ({
-    head: 'ENCERRAR TURNO',
-    body: 'fecha o turno sem parar. você compra outra carta no próximo turno e continua tentando chegar perto de 20.',
+    head: t('tip.end.head'),
+    body: t('tip.end.body'),
   }));
   attachTip($('#btn-pause'), () => ({
-    head: 'PAUSAR',
-    body: 'congela o relógio de 10s enquanto você pensa. o turno não termina enquanto estiver pausado.',
+    head: t('tip.pause.head'),
+    body: t('tip.pause.body'),
   }));
   attachTip($('#btn-stand'), () => ({
-    head: 'PARAR',
-    body: 'trava o seu total neste set. você não compra mais cartas — o oponente segue jogando até parar ou estourar.',
+    head: t('tip.stand.head'),
+    body: t('tip.stand.body'),
   }));
+
+  buildLangMenu();
+  $('#btn-lang').addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleLangMenu();
+  });
+  $('#lang-menu').addEventListener('click', (e) => {
+    const item = e.target.closest('[data-lang]');
+    if (!item) return;
+    e.stopPropagation();
+    setLang(item.dataset.lang);
+    closeLangMenu();
+  });
 
   $('#btn-mute').addEventListener('click', (e) => {
     e.stopPropagation();
@@ -1257,7 +1442,7 @@ function bind() {
   if (sysBtn) {
     attachTip(
       sysBtn,
-      () => ({ head: 'MAGI SYSTEM', body: 'sessão em uso: MAGI ' + MAGI[magi.idx] }),
+      () => ({ head: t('tip.magi.head'), body: t('tip.magi.body', { name: MAGI[magi.idx] }) }),
       { pin: true },
     );
   }
@@ -1289,10 +1474,14 @@ async function boot() {
       `<pre style="padding:40px;color:#ff4136">falha ao carregar o motor:\n${e.message}</pre>`;
     return;
   }
+  i18nInit();
+  applyStatic();
+  window.onLangChange = onLangChange;
   bind();
   sfx.init();
   sfx.bootOnLoad();
   magiStart();
+  applyStatic();
   show('home');
 }
 
