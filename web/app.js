@@ -486,6 +486,20 @@ function show(view) {
   for (const el of document.querySelectorAll('.view')) el.classList.add('hidden');
   const target = document.getElementById('view-' + view);
   if (target) target.classList.remove('hidden');
+  paintLink();
+}
+
+/* telemetria do rodapé: o "link" acompanha a tela/modo em uso */
+const LINK_VIEW = { home: '00', campaign: '02', deck: '04', game: null };
+const LINK_MODE = { tutorial: '01', campaign: '02', challenge: '03' };
+
+function paintLink() {
+  const el = $('#link-id');
+  if (!el) return;
+  let n;
+  if (S.view === 'game') n = LINK_MODE[S.mode] || '00';
+  else n = LINK_VIEW[S.view] || '00';
+  el.textContent = n;
 }
 
 /* ── render da mesa ──────────────────────────────────────────────────────── */
