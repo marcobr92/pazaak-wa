@@ -99,6 +99,8 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 }
 .audio-menu button:last-child{border-bottom:none}
 .audio-menu button:hover{color:var(--orange);background:rgba(255,122,26,.08)}
+.audio-menu button.active{color:var(--orange);background:rgba(255,122,26,.1)}
+#btn-lang svg{display:block}
 
 /* ── views ────────────────────────────────────────────────────────────── */
 main{
