@@ -729,8 +729,8 @@ function saveDeck() {
    nesses elementos: qualquer mudança visual passa por magiRender().        */
 const MAGI = ['caspar', 'balthasar', 'melchior'];
 const SYNC_MIN = 90;
-const SYNC_TICK_MS = 10000;
-const MAGI_ROTATE_MS = 30000;
+const SYNC_TICK_MS = 1000;
+const MAGI_ROTATE_MS = 10000;
 const SYNC_ALERT_MS = 1000;
 const UNIT_FLASH_MS = 700;
 
@@ -783,7 +783,10 @@ function magiScheduleSync() {
   clearTimeout(magi.syncTimer);
   magi.syncTimer = setTimeout(() => {
     if (!magi.alerting) {
-      magi.sync = randInt(SYNC_MIN, 100);
+      // garante que o número mude a cada tique, senão parece travado
+      let next = randInt(SYNC_MIN, 100);
+      if (next === magi.sync) next = next === 100 ? 99 : next + 1;
+      magi.sync = next;
       magiRender();
     }
     magiScheduleSync();
