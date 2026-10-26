@@ -129,6 +129,18 @@ build.ps1          build + cópia do wasm + base64
 - `main` — protegida: só entra por pull request com o check `motor wasm` verde.
 - Deploy: nenhum por enquanto.
 
+Um push em `develop` abre (ou atualiza) automaticamente um PR para a `main` — `.github/workflows/auto-pr.yml`.
+Não é um PR novo a cada push: o mesmo vai acumulando os commits.
+
+Como a proteção exige branch atualizada (`strict`), depois de cada merge na `main` a `develop` fica atrás e
+o PR seguinte nasce `UNSTABLE`. A correção é sob demanda, nunca automática:
+
+```powershell
+gh pr update-branch <número>
+```
+
+ou o botão **Update branch** na página do PR.
+
 ## Limitações conhecidas
 
 - **IA heurística**: fecha em 18–20, tenta corrigir estouro, para por limiar. Não conta cartas, não blefa.
