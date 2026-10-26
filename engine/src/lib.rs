@@ -487,6 +487,20 @@ pub extern "C" fn pa_start_match(seed: u32, diff: u32, first: u32) -> i32 {
 }
 
 #[no_mangle]
+pub extern "C" fn pa_grant_set(who: u32) -> i32 {
+    let g = g();
+    if g.phase == 3 {
+        return 0;
+    }
+    let w = (who as usize) & 1;
+    if g.p[w].sets >= 3 {
+        return 0;
+    }
+    g.p[w].sets += 1;
+    1
+}
+
+#[no_mangle]
 pub extern "C" fn pa_next_set() -> i32 {
     let g = g();
     if g.phase != 2 {

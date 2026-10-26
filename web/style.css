@@ -235,11 +235,30 @@ main{
   border:1px solid rgba(255,180,84,.35);background:rgba(255,122,26,.07);
   padding:10px 12px;margin-top:12px;
 }
-.guide{animation:guidePulse 1.5s ease-in-out infinite}
-@keyframes guidePulse{
-  0%,100%{filter:drop-shadow(0 0 2px rgba(255,122,26,.35))}
-  50%{filter:drop-shadow(0 0 9px rgba(255,122,26,.95))}
+.guide{
+  animation:guidePulse 1.5s ease-in-out infinite;
+  outline:2px solid rgba(255,122,26,.85);outline-offset:3px;
 }
+@keyframes guidePulse{
+  0%,100%{filter:drop-shadow(0 0 2px rgba(255,122,26,.35));outline-color:rgba(255,122,26,.35)}
+  50%{filter:drop-shadow(0 0 9px rgba(255,122,26,.95));outline-color:rgba(255,122,26,1)}
+}
+
+/* seta "clique aqui" apontando para o alvo do tutorial */
+.guide-arrow{
+  position:fixed;z-index:78;display:flex;flex-direction:column;align-items:center;gap:3px;
+  pointer-events:none;opacity:0;transition:opacity .18s;
+}
+.guide-arrow.on{opacity:1}
+.guide-arrow span{
+  font-size:9px;letter-spacing:.18em;text-transform:uppercase;white-space:nowrap;
+  color:var(--orange);background:#0a0f12;border:1px solid rgba(255,122,26,.5);
+  padding:4px 8px;
+}
+.guide-arrow i{font-style:normal;color:var(--orange);font-size:11px;line-height:1;animation:arrowBob 1.2s ease-in-out infinite}
+.guide-arrow.flip{flex-direction:column-reverse}
+.guide-arrow.flip i{transform:rotate(180deg)}
+@keyframes arrowBob{0%,100%{transform:translateY(0)}50%{transform:translateY(4px)}}
 
 .card{
   width:42px;height:56px;display:flex;align-items:center;justify-content:center;

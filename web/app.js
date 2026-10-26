@@ -580,10 +580,35 @@ function renderTable() {
 let guideTarget = null;
 
 function setGuide(el) {
-  if (guideTarget === el) return;
+  const arrow = $('#guide-arrow');
+  if (guideTarget === el) {
+    if (el) positionArrow(el);
+    return;
+  }
   if (guideTarget) guideTarget.classList.remove('guide');
   guideTarget = el;
-  if (el) el.classList.add('guide');
+  if (!el) { if (arrow) arrow.classList.remove('on'); return; }
+  el.classList.add('guide');
+  if (arrow) {
+    arrow.classList.add('on');
+    positionArrow(el);
+  }
+}
+
+function positionArrow(el) {
+  const arrow = $('#guide-arrow');
+  if (!arrow) return;
+  const r = el.getBoundingClientRect();
+  const w = arrow.offsetWidth || 90;
+  const h = arrow.offsetHeight || 30;
+  const left = Math.max(8, Math.min(window.innerWidth - w - 8, r.left + r.width / 2 - w / 2));
+  // encosta a ponta dentro do alvo para não pairar sobre o elemento vizinho
+  let top = r.top - h + 7;
+  const flip = top < 8;
+  if (flip) top = r.bottom - 7;
+  arrow.classList.toggle('flip', flip);
+  arrow.style.left = Math.round(left) + 'px';
+  arrow.style.top = Math.round(top) + 'px';
 }
 
 function renderGuide(phase, turn) {
@@ -613,7 +638,9 @@ function renderGuide(phase, turn) {
       text = '16 no total. O +4 da sua mão fecha exatamente em 20 — e 20 para sozinho. Clique nele.';
       target = document.querySelector('#hand .card[data-code="4"]');
     } else {
-      text = 'Você comprou uma carta. Encerrar o turno compra outra; parar trava o total.';
+      text = w.pa_set_no() === 1 && w.pa_sets_p() === 1
+        ? 'Você começa 1 set à frente — é aula, o ponto é seu. Encerrar compra outra carta; parar trava o total.'
+        : 'Você comprou uma carta. Encerrar o turno compra outra; parar trava o total.';
       target = $('#btn-end');
     }
   } else {
@@ -941,8 +968,13 @@ function resolveCoin(pick) {
 function startWithFirst(first) {
   if (S.view !== 'game' || !S.opp) return;
   const w = S.wasm;
-  const seed = S.mode === 'tutorial' ? TUTORIAL.seed : seedNow();
-  w.pa_start_match(seed, S.opp.diff, first);
+  const tut = S.mode === 'tutorial';
+  w.pa_start_match(tut ? TUTORIAL.seed : seedNow(), S.opp.diff, first);
+  if (tut) {
+    // aula: o set de vantagem é dado, não conquistado
+    w.pa_grant_set(0);
+    log('vantagem de aula: você começa 1 set à frente');
+  }
   renderTable();
   log('set 1 — ' + S.opp.name);
   loop();
