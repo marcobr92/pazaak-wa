@@ -384,6 +384,24 @@ main{
 .coin-actions{display:flex;gap:10px}
 .coin-actions .act{flex:1;padding:12px 14px;font-size:10px}
 
+.intro-box{max-width:520px;text-align:left;padding:28px 30px}
+.intro-head{
+  font-size:15px;letter-spacing:.12em;color:var(--orange);font-weight:700;
+  margin:0 0 16px;line-height:1.4;
+}
+.intro-list{list-style:none;display:flex;flex-direction:column;gap:9px;margin:0 0 16px}
+.intro-list li{
+  font-size:11px;line-height:1.55;color:#9fadb3;padding-left:14px;position:relative;
+}
+.intro-list li::before{content:"▸";position:absolute;left:0;color:var(--orange)}
+.intro-list b{color:var(--ink);font-weight:600}
+.intro-note{
+  font-size:10px;line-height:1.7;color:var(--dim);
+  border-top:1px solid var(--line);padding-top:14px;margin-bottom:20px;
+}
+.intro-note b{color:var(--amber);font-weight:600}
+.intro-box .act{width:100%;padding:13px}
+
 /* ── barra de status ──────────────────────────────────────────────────── */
 .statusbar{
   position:fixed;left:0;right:0;bottom:0;z-index:30;

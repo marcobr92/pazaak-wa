@@ -629,7 +629,7 @@ function renderGuide(phase, turn) {
     text = 'Set encerrado. Quem chegou mais perto de 20 sem estourar leva o ponto.';
   } else if (phase === 0 && turn === 1) {
     text = 'Agora o oponente. Ele compra sozinho — repare no total dele.';
-    target = $('#side-o');
+    target = null;
   } else if (phase === 1 && turn === 0) {
     if (w.pa_played() === 1) {
       text = 'Carta jogada. Encerrar compra outra; parar trava o total.';
@@ -1043,6 +1043,8 @@ function goHome() {
   S.coinPending = false;
   const modal = $('#coin-modal');
   if (modal) modal.classList.add('hidden');
+  const tutModal = $('#tutorial-modal');
+  if (tutModal) tutModal.classList.add('hidden');
   S.mode = null;
   S.opp = null;
   show('home');
@@ -1253,7 +1255,7 @@ function bind() {
       const mode = btn.dataset.mode;
       if (mode === 'tutorial') {
         S.mode = 'tutorial';
-        prepareMatch(TUTORIAL_OPP);
+        $('#tutorial-modal').classList.remove('hidden');
       } else if (mode === 'campaign') {
         startCampaign();
       } else if (mode === 'challenge') {
@@ -1263,6 +1265,11 @@ function bind() {
       }
     });
   }
+
+  $('#btn-tutorial-start').addEventListener('click', () => {
+    $('#tutorial-modal').classList.add('hidden');
+    prepareMatch(TUTORIAL_OPP);
+  });
 
   $('#btn-deck').addEventListener('click', openDeck);
   $('#btn-deck-clear').addEventListener('click', () => {
