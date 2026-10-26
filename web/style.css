@@ -414,7 +414,10 @@ main{
   background:linear-gradient(0deg,#080c0e,rgba(8,12,14,.85));
   border-top:1px solid var(--line);
 }
-.statusbar .right{margin-left:auto}
+.statusbar .right{margin-left:auto;display:inline-flex;align-items:center;gap:12px}
+.repo-link{display:inline-flex;align-items:center;color:#5d6b72;transition:color .15s}
+.repo-link:hover{color:var(--orange)}
+.repo-link svg{display:block}
 #sync-value{display:inline-block;min-width:2.9em;text-align:right;transition:color .18s}
 #sync-value.alert{color:var(--red);text-shadow:0 0 10px rgba(255,65,54,.65)}
 #sys-unit{transition:color .18s}

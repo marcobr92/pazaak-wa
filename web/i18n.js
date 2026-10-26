@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 /* ──────────────────────────────────────────────────────────────────────────
    i18n — dicionário plano, uma chave por texto. pt é a referência.
@@ -16,7 +16,7 @@ const LANGS = [
 
 const I18N = {
   pt: {
-    'html.title': 'PAZAAK // WA',
+    'html.title': 'Pazaak WA',
     'ui.rules': 'REGRAS DO JOGO',
     'ui.close': 'FECHAR ✕',
     'home.sub': '// simulação tática de cartas',
@@ -191,7 +191,7 @@ const I18N = {
   },
 
   en: {
-    'html.title': 'PAZAAK // WA',
+    'html.title': 'Pazaak WA',
     'ui.rules': 'GAME RULES',
     'ui.close': 'CLOSE ✕',
     'home.sub': '// tactical card simulation',
@@ -366,7 +366,7 @@ const I18N = {
   },
 
   es: {
-    'html.title': 'PAZAAK // WA',
+    'html.title': 'Pazaak WA',
     'ui.rules': 'REGLAS DEL JUEGO',
     'ui.close': 'CERRAR ✕',
     'home.sub': '// simulación táctica de cartas',
@@ -541,7 +541,7 @@ const I18N = {
   },
 
   ru: {
-    'html.title': 'PAZAAK // WA',
+    'html.title': 'Pazaak WA',
     'ui.rules': 'ПРАВИЛА ИГРЫ',
     'ui.close': 'ЗАКРЫТЬ ✕',
     'home.sub': '// тактическая карточная симуляция',
@@ -716,7 +716,7 @@ const I18N = {
   },
 
   zh: {
-    'html.title': 'PAZAAK // WA',
+    'html.title': 'Pazaak WA',
     'ui.rules': '游戏规则',
     'ui.close': '关闭 ✕',
     'home.sub': '// 战术卡牌模拟',
@@ -891,7 +891,7 @@ const I18N = {
   },
 
   ja: {
-    'html.title': 'PAZAAK // WA',
+    'html.title': 'Pazaak WA',
     'ui.rules': 'ゲームのルール',
     'ui.close': '閉じる ✕',
     'home.sub': '// タクティカル・カード・シミュレーション',
