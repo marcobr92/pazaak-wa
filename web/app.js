@@ -724,29 +724,105 @@ function saveDeck() {
   show('home');
 }
 
-/* ── unidade MAGI ativa (rodízio a cada 30s) ─────────────────────────────── */
+/* ── núcleo MAGI: unidade ativa + telemetria de sync ───────────────────────
+   Um único dono do estado e dos três temporizadores. Ninguém mais mexe
+   nesses elementos: qualquer mudança visual passa por magiRender().        */
 const MAGI = ['caspar', 'balthasar', 'melchior'];
-let magiIdx = Math.floor(Math.random() * MAGI.length);
+const SYNC_MIN = 90;
+const SYNC_TICK_MS = 10000;
+const MAGI_ROTATE_MS = 30000;
+const SYNC_ALERT_MS = 1000;
+const UNIT_FLASH_MS = 700;
 
-function applyMagi() {
-  const name = MAGI[magiIdx];
-  const label = $('#sys-unit');
-  if (label) label.textContent = name;
-  const sys = $('#btn-sys');
-  if (sys) sys.setAttribute('aria-label', 'MAGI SYSTEM — sessão em uso: ' + name);
+const magi = {
+  idx: 0,
+  sync: 100,
+  alerting: false,
+  syncTimer: 0,
+  rotateTimer: 0,
+  alertTimer: 0,
+  flashTimer: 0,
+};
+
+const randInt = (min, max) => min + Math.floor(Math.random() * (max - min + 1));
+
+function magiRender() {
+  const name = MAGI[magi.idx];
+
+  const unit = $('#sys-unit');
+  if (unit) {
+    unit.textContent = name;
+    unit.classList.toggle('alert', magi.alerting);
+  }
+
+  const sync = $('#sync-value');
+  if (sync) {
+    sync.textContent = magi.sync + '%';
+    sync.classList.toggle('alert', magi.alerting);
+  }
+
+  const btn = $('#btn-sys');
+  if (btn) btn.setAttribute('aria-label', 'MAGI SYSTEM — sessão em uso: ' + name);
+
   for (const el of document.querySelectorAll('.statusbar .unit')) {
     el.classList.toggle('active', el.dataset.unit === name);
   }
 }
 
-function startMagiCycle() {
-  applyMagi();
-  setInterval(() => {
-    let next = Math.floor(Math.random() * MAGI.length);
-    if (next === magiIdx) next = (next + 1) % MAGI.length; // troca sempre
-    magiIdx = next;
-    applyMagi();
-  }, 30000);
+function magiFlash() {
+  const unit = $('#sys-unit');
+  if (!unit) return;
+  clearTimeout(magi.flashTimer);
+  unit.classList.remove('flash');
+  void unit.offsetWidth; // reinicia a animação
+  unit.classList.add('flash');
+  magi.flashTimer = setTimeout(() => unit.classList.remove('flash'), UNIT_FLASH_MS);
+}
+
+function magiScheduleSync() {
+  clearTimeout(magi.syncTimer);
+  magi.syncTimer = setTimeout(() => {
+    if (!magi.alerting) {
+      magi.sync = randInt(SYNC_MIN, 100);
+      magiRender();
+    }
+    magiScheduleSync();
+  }, SYNC_TICK_MS);
+}
+
+function magiScheduleRotate() {
+  clearTimeout(magi.rotateTimer);
+  magi.rotateTimer = setTimeout(magiRotate, MAGI_ROTATE_MS);
+}
+
+function magiRotate() {
+  // 1) queda de sincronia: valor abaixo do piso, tudo em vermelho
+  magi.alerting = true;
+  magi.sync = randInt(55, SYNC_MIN - 1);
+  magiRender();
+
+  // 2) depois de 1s: entra a nova unidade, pisca, e o sync volta ao normal
+  magi.alertTimer = setTimeout(() => {
+    magi.alerting = false;
+    magi.idx = (magi.idx + randInt(1, MAGI.length - 1)) % MAGI.length;
+    magi.sync = randInt(SYNC_MIN, 100);
+    magiRender();
+    magiFlash();
+    magiScheduleRotate();
+  }, SYNC_ALERT_MS);
+}
+
+function magiStart() {
+  clearTimeout(magi.syncTimer);
+  clearTimeout(magi.rotateTimer);
+  clearTimeout(magi.alertTimer);
+  clearTimeout(magi.flashTimer);
+  magi.idx = randInt(0, MAGI.length - 1);
+  magi.sync = randInt(SYNC_MIN, 100);
+  magi.alerting = false;
+  magiRender();
+  magiScheduleSync();
+  magiScheduleRotate();
 }
 
 /* ── boot ────────────────────────────────────────────────────────────────── */
@@ -802,7 +878,7 @@ function bind() {
   if (sysBtn) {
     attachTip(
       sysBtn,
-      () => ({ head: 'MAGI SYSTEM', body: 'sessão em uso: MAGI ' + MAGI[magiIdx] }),
+      () => ({ head: 'MAGI SYSTEM', body: 'sessão em uso: MAGI ' + MAGI[magi.idx] }),
       { pin: true },
     );
   }
@@ -835,7 +911,7 @@ async function boot() {
     return;
   }
   bind();
-  startMagiCycle();
+  magiStart();
   show('home');
 }
 

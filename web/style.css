@@ -313,6 +313,19 @@ main{
   border-top:1px solid var(--line);
 }
 .statusbar .right{margin-left:auto}
+#sync-value{display:inline-block;min-width:2.9em;text-align:right;transition:color .18s}
+#sync-value.alert{color:var(--red);text-shadow:0 0 10px rgba(255,65,54,.65)}
+#sys-unit{transition:color .18s}
+#sys-unit.alert{color:var(--red);text-shadow:0 0 10px rgba(255,65,54,.55)}
+#sys-unit.flash{animation:unitFlash .7s ease-out}
+@keyframes unitFlash{
+  0%{opacity:1;text-shadow:0 0 16px currentColor}
+  18%{opacity:.22}
+  34%{opacity:1;text-shadow:0 0 18px currentColor}
+  52%{opacity:.28}
+  70%{opacity:1;text-shadow:0 0 20px currentColor}
+  100%{opacity:1;text-shadow:none}
+}
 .statusbar .unit{
   display:inline-flex;align-items:center;gap:7px;
   opacity:.38;transition:opacity .6s ease,color .6s ease;
