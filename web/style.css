@@ -201,6 +201,10 @@ main{
 }
 #side-p{box-shadow:0 0 0 1px rgba(255,65,54,var(--alert,0))}
 .side-label{font-size:9px;letter-spacing:.3em;color:var(--dim);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.side-plate{
+  display:inline-block;padding:4px 10px;border:1px solid var(--line2);
+  background:rgba(255,255,255,.04);color:#cfdade;letter-spacing:.28em;
+}
 .cards{display:flex;flex-wrap:wrap;gap:6px;min-height:96px;align-content:flex-start}
 .sum{
   font-size:46px;font-weight:800;letter-spacing:.04em;margin-top:14px;

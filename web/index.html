@@ -90,14 +90,14 @@
 
     <div class="board">
       <div class="side" id="side-p">
-        <div class="side-label"><span data-i18n="ui.you">VOCÊ</span><span class="pips" id="p-pips"></span></div>
+        <div class="side-label"><span class="side-plate" data-i18n="ui.you">VOCÊ</span><span class="pips" id="p-pips"></span></div>
         <div id="p-cards" class="cards"></div>
         <div id="p-sum" class="sum p">0</div>
       </div>
 
       <div class="center">
         <div id="set-index" class="set-index">SET 0</div>
-        <div class="center-label" data-i18n="ui.lastDraw">ÚLTIMA COMPRA</div>
+        <div class="center-label" id="draw-label">ÚLTIMA COMPRA</div>
         <div id="last-card" class="last-card">—</div>
         <div id="turn-tag" class="turn-tag">—</div>
         <div id="turn-clock" class="turn-clock hidden">
@@ -109,7 +109,7 @@
       </div>
 
       <div class="side" id="side-o">
-        <div class="side-label"><span data-i18n="ui.opponent">OPONENTE</span><span class="pips" id="o-pips"></span></div>
+        <div class="side-label"><span class="side-plate" data-i18n="ui.opponent">OPONENTE</span><span class="pips" id="o-pips"></span></div>
         <div id="o-cards" class="cards"></div>
         <div id="o-sum" class="sum o">0</div>
       </div>

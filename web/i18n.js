@@ -1,4 +1,4 @@
-﻿'use strict';
+'use strict';
 
 /* ──────────────────────────────────────────────────────────────────────────
    i18n — dicionário plano, uma chave por texto. pt é a referência.
@@ -25,6 +25,8 @@ const I18N = {
     'ui.you': 'VOCÊ',
     'ui.opponent': 'OPONENTE',
     'ui.lastDraw': 'ÚLTIMA COMPRA',
+    'ui.lastDrawMine': 'SUA ÚLTIMA COMPRA',
+    'ui.lastDrawOpp': 'ÚLTIMA COMPRA DO OPONENTE',
     'ui.yourTurn': 'É A SUA VEZ',
     'ui.oppTurn': 'É A VEZ DO OPONENTE {name}',
     'ui.set': 'SET {n}',
@@ -200,6 +202,8 @@ const I18N = {
     'ui.you': 'YOU',
     'ui.opponent': 'OPPONENT',
     'ui.lastDraw': 'LAST DRAW',
+    'ui.lastDrawMine': 'YOUR LAST DRAW',
+    'ui.lastDrawOpp': 'OPPONENT LAST DRAW',
     'ui.yourTurn': 'YOUR TURN',
     'ui.oppTurn': "OPPONENT {name}'S TURN",
     'ui.set': 'SET {n}',
@@ -375,6 +379,8 @@ const I18N = {
     'ui.you': 'TÚ',
     'ui.opponent': 'RIVAL',
     'ui.lastDraw': 'ÚLTIMA CARTA',
+    'ui.lastDrawMine': 'TU ÚLTIMA CARTA',
+    'ui.lastDrawOpp': 'ÚLTIMA CARTA DEL RIVAL',
     'ui.yourTurn': 'ES TU TURNO',
     'ui.oppTurn': 'TURNO DEL RIVAL {name}',
     'ui.set': 'SET {n}',
@@ -550,6 +556,8 @@ const I18N = {
     'ui.you': 'ВЫ',
     'ui.opponent': 'СОПЕРНИК',
     'ui.lastDraw': 'ПОСЛЕДНЯЯ КАРТА',
+    'ui.lastDrawMine': 'ВАША ПОСЛЕДНЯЯ КАРТА',
+    'ui.lastDrawOpp': 'ПОСЛЕДНЯЯ КАРТА СОПЕРНИКА',
     'ui.yourTurn': 'ВАШ ХОД',
     'ui.oppTurn': 'ХОД СОПЕРНИКА {name}',
     'ui.set': 'СЕТ {n}',
@@ -725,6 +733,8 @@ const I18N = {
     'ui.you': '你',
     'ui.opponent': '对手',
     'ui.lastDraw': '最近抽牌',
+    'ui.lastDrawMine': '你的最近抽牌',
+    'ui.lastDrawOpp': '对手的最近抽牌',
     'ui.yourTurn': '轮到你了',
     'ui.oppTurn': '对手 {name} 的回合',
     'ui.set': '第 {n} 局',
@@ -900,6 +910,8 @@ const I18N = {
     'ui.you': 'あなた',
     'ui.opponent': '相手',
     'ui.lastDraw': '直前のドロー',
+    'ui.lastDrawMine': 'あなたの直前のドロー',
+    'ui.lastDrawOpp': '相手の直前のドロー',
     'ui.yourTurn': 'あなたの番です',
     'ui.oppTurn': '相手 {name} の番です',
     'ui.set': 'セット {n}',

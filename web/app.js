@@ -580,6 +580,14 @@ function renderTable() {
       turn === 0 ? t('ui.yourTurn') : t('ui.oppTurn', { name: short });
     tag.classList.toggle('mine', phase === 1 && turn === 0);
   }
+
+  // rótulo da última compra: diz de quem foi, não só que houve uma
+  const drawLabel = $('#draw-label');
+  if (drawLabel) {
+    if (S.drawLabelBy === 0) drawLabel.textContent = t('ui.lastDrawMine');
+    else if (S.drawLabelBy === 1) drawLabel.textContent = t('ui.lastDrawOpp');
+    else drawLabel.textContent = t('ui.lastDraw');
+  }
   const sideP = $('#side-p');
   const sideO = $('#side-o');
   if (sideP) sideP.classList.toggle('active', phase === 1 && turn === 0);
@@ -794,6 +802,7 @@ async function loop() {
       if (phase === 0) {
         if (w.pa_turn() === 0) {
           w.pa_begin_turn();
+          S.drawLabelBy = 0;
           renderTable();
           log(t('log.youDraw'));
           await wait(420);
@@ -803,6 +812,7 @@ async function loop() {
         if (S.view !== 'game') return;
         await pauseGate();
         w.pa_ai_turn();
+        S.drawLabelBy = 1;
         const act = w.pa_log();
         if (act === 2) sfx.card();
         log(act === 2 ? t('log.oppCard') : act === 3 ? t('log.oppStand') : t('log.oppEnd'));
@@ -935,6 +945,9 @@ function blankTable() {
   if (tag) { tag.textContent = t('ui.shuffle'); tag.classList.remove('mine'); }
   const setIdx = $('#set-index');
   if (setIdx) setIdx.textContent = t('ui.set', { n: 1 });
+  S.drawLabelBy = undefined;
+  const drawLabel = $('#draw-label');
+  if (drawLabel) drawLabel.textContent = t('ui.lastDraw');
   const hand = $('#hand');
   if (hand) {
     hand.replaceChildren();
