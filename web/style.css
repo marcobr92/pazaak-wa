@@ -118,6 +118,13 @@ main{
   color:var(--orange);text-shadow:0 0 24px rgba(255,122,26,.35);
   margin-right:-.32em;
 }
+/* passatempo: hover numa letra troca o preenchimento por contorno */
+.home-head h1 span{transition:color .12s ease,text-shadow .12s ease}
+.home-head h1 span:hover{
+  color:transparent;
+  -webkit-text-stroke:1px var(--orange);
+  text-shadow:none;
+}
 .sub{color:var(--dim);font-size:11px;letter-spacing:.28em;margin-top:6px}
 
 /* ── modos ────────────────────────────────────────────────────────────── */
