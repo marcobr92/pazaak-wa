@@ -30,7 +30,7 @@ const I18N = {
     'ui.yourTurn': 'É A SUA VEZ',
     'ui.oppTurn': 'É A VEZ DO OPONENTE {name}',
     'ui.set': 'SET {n}',
-    'ui.endTurn': 'ENCERRAR TURNO',
+    'ui.endTurn': 'PEDIR',
     'ui.stand': 'PARAR',
     'ui.continue': 'CONTINUAR',
     'ui.yourHand': 'SUA MÃO',
@@ -89,7 +89,7 @@ const I18N = {
     'set.tieLine': 'os dois terminaram em {p} — set sem vencedor',
 
     'log.youDraw': 'você comprou',
-    'log.youEnd': 'você encerrou o turno',
+    'log.youEnd': 'você pediu carta',
     'log.youStand': 'você parou',
     'log.oppCard': 'oponente jogou carta',
     'log.oppStand': 'oponente parou',
@@ -100,11 +100,11 @@ const I18N = {
     'log.bonus': 'vantagem de aula: você começa 1 set à frente',
 
     'tut.opponent': 'Agora o oponente. Ele compra sozinho — repare no total dele.',
-    'tut.played': 'Carta jogada. Encerrar compra outra; parar trava o total.',
+    'tut.played': 'Carta jogada. Pedir compra outra; parar trava o total.',
     'tut.sixteen': '16 no total. O +4 da sua mão fecha exatamente em 20 — e 20 para sozinho. Clique nele.',
-    'tut.bonus': 'Você começa 1 set à frente — é aula, o ponto é seu. Encerrar compra outra carta; parar trava o total.',
-    'tut.draw': 'Você comprou uma carta. Encerrar o turno compra outra; parar trava o total.',
-    'tut.generic': 'Um turno: compra uma carta, opcionalmente joga uma da mão, e para ou encerra.',
+    'tut.bonus': 'Você começa 1 set à frente — é aula, o ponto é seu. Pedir compra outra carta; parar trava o total.',
+    'tut.draw': 'Você comprou uma carta. Pedir compra outra; parar trava o total.',
+    'tut.generic': 'Um turno: compra uma carta, opcionalmente joga uma da mão, e pede ou para.',
     'tut.afterFirst': 'A partir daqui é com você: mesmas regras, sem dica.',
     'tut.setEnd': 'Set encerrado. Quem chegou mais perto de 20 sem estourar leva o ponto.',
     'tut.guide': 'clique aqui',
@@ -114,7 +114,7 @@ const I18N = {
     'intro.li1': 'a cada turno você compra uma carta de 1 a 10 — ela soma no seu total',
     'intro.li2': 'passar de 20 no fim do turno é estourar: você perde o set',
     'intro.li3': 'na mão há quatro cartas para corrigir a soma, uma por turno',
-    'intro.li4': 'encerrar compra outra carta; parar trava o seu total',
+    'intro.li4': 'pedir compra outra carta; parar trava o seu total',
     'intro.li5': 'quem ganha três sets leva a partida',
     'intro.note': 'Nesta aula você começa 1 set à frente, joga sem relógio, e eu aponto onde clicar. As cartas são sempre as mesmas — dá para repetir quantas vezes quiser.',
     'intro.start': 'COMEÇAR A AULA',
@@ -133,8 +133,8 @@ const I18N = {
     'audio.unmute': 'ATIVAR SOM',
     'audio.test': 'TESTAR ÁUDIO',
 
-    'tip.end.head': 'ENCERRAR TURNO',
-    'tip.end.body': 'fecha o turno sem parar. você compra outra carta no próximo turno e continua tentando chegar perto de 20.',
+    'tip.end.head': 'PEDIR',
+    'tip.end.body': 'pede mais uma carta do baralho. seu total sobe e você segue tentando chegar perto de 20 sem estourar.',
     'tip.pause.head': 'PAUSAR',
     'tip.pause.body': 'congela o relógio de 10s e segura o oponente. o jogo só anda quando você retomar.',
     'tip.stand.head': 'PARAR',
@@ -174,7 +174,7 @@ const I18N = {
       <h3>Turno</h3>
       <ol><li>Você compra uma carta do baralho principal.</li>
       <li>Pode jogar <strong>uma</strong> carta da mão (opcional).</li>
-      <li>Depois, escolhe <strong>encerrar</strong> (compra de novo) ou <strong>parar</strong>.</li></ol>
+      <li>Depois, escolhe <strong>pedir</strong> (compra de novo) ou <strong>parar</strong>.</li></ol>
       <p>Se passar de 20 no fim do turno, estoura e perde o set.</p>
       <h3>Tipos de carta</h3>
       <ul><li><b class="c-plus">+</b> soma o valor.</li>
@@ -207,7 +207,7 @@ const I18N = {
     'ui.yourTurn': 'YOUR TURN',
     'ui.oppTurn': "OPPONENT {name}'S TURN",
     'ui.set': 'SET {n}',
-    'ui.endTurn': 'END TURN',
+    'ui.endTurn': 'HIT',
     'ui.stand': 'STAND',
     'ui.continue': 'CONTINUE',
     'ui.yourHand': 'YOUR HAND',
@@ -266,7 +266,7 @@ const I18N = {
     'set.tieLine': 'both ended at {p} — no winner',
 
     'log.youDraw': 'you drew',
-    'log.youEnd': 'you ended the turn',
+    'log.youEnd': 'you hit',
     'log.youStand': 'you stood',
     'log.oppCard': 'opponent played a card',
     'log.oppStand': 'opponent stood',
@@ -277,11 +277,11 @@ const I18N = {
     'log.bonus': 'lesson bonus: you start 1 set ahead',
 
     'tut.opponent': 'Now the opponent. They draw on their own — watch their total.',
-    'tut.played': 'Card played. End to draw again; stand to lock your total.',
+    'tut.played': 'Card played. Hit draws again; stand locks the total.',
     'tut.sixteen': '16 total. The +4 in your hand lands exactly on 20 — and 20 stands by itself. Click it.',
-    'tut.bonus': 'You start 1 set ahead — it is a lesson, the point is yours. End turn draws another card; stand locks the total.',
-    'tut.draw': 'You drew a card. Ending the turn draws another; standing locks your total.',
-    'tut.generic': 'A turn: draw a card, optionally play one from your hand, then stand or end.',
+    'tut.bonus': 'You start 1 set ahead — it is a lesson, the point is yours. Hit draws another card; stand locks the total.',
+    'tut.draw': 'You drew a card. Hit draws another; standing locks your total.',
+    'tut.generic': 'A turn: draw a card, optionally play one from your hand, then hit or stand.',
     'tut.afterFirst': 'From here it is on you: same rules, no hints.',
     'tut.setEnd': 'Set over. Whoever got closest to 20 without busting takes the point.',
     'tut.guide': 'click here',
@@ -291,7 +291,7 @@ const I18N = {
     'intro.li1': 'every turn you draw a card from 1 to 10 — it adds to your total',
     'intro.li2': 'going over 20 at the end of your turn is a bust: you lose the set',
     'intro.li3': 'your hand holds four cards to fix the total, one per turn',
-    'intro.li4': 'ending draws another card; standing locks your total',
+    'intro.li4': 'hit draws another card; standing locks your total',
     'intro.li5': 'win three sets and you win the match',
     'intro.note': 'In this lesson you start 1 set ahead, play without a clock, and I point where to click. The cards are always the same — replay as often as you like.',
     'intro.start': 'START THE LESSON',
@@ -310,8 +310,8 @@ const I18N = {
     'audio.unmute': 'UNMUTE',
     'audio.test': 'TEST AUDIO',
 
-    'tip.end.head': 'END TURN',
-    'tip.end.body': 'closes the turn without standing. you draw another card next turn and keep trying to get close to 20.',
+    'tip.end.head': 'HIT',
+    'tip.end.body': 'takes another card from the deck. your total goes up and you keep trying to get close to 20 without busting.',
     'tip.pause.head': 'PAUSE',
     'tip.pause.body': 'freezes the 10s clock and holds the opponent. the game only moves when you resume.',
     'tip.stand.head': 'STAND',
@@ -351,7 +351,7 @@ const I18N = {
       <h3>Turn</h3>
       <ol><li>You draw a card from the main deck.</li>
       <li>You may play <strong>one</strong> card from your hand (optional).</li>
-      <li>Then you choose to <strong>end</strong> (draw again) or <strong>stand</strong>.</li></ol>
+      <li>Then you choose to <strong>hit</strong> (draw again) or <strong>stand</strong>.</li></ol>
       <p>Going over 20 at the end of the turn is a bust: you lose the set.</p>
       <h3>Card types</h3>
       <ul><li><b class="c-plus">+</b> adds its value.</li>
@@ -384,7 +384,7 @@ const I18N = {
     'ui.yourTurn': 'ES TU TURNO',
     'ui.oppTurn': 'TURNO DEL RIVAL {name}',
     'ui.set': 'SET {n}',
-    'ui.endTurn': 'TERMINAR TURNO',
+    'ui.endTurn': 'PEDIR',
     'ui.stand': 'PLANTARSE',
     'ui.continue': 'CONTINUAR',
     'ui.yourHand': 'TU MANO',
@@ -443,7 +443,7 @@ const I18N = {
     'set.tieLine': 'los dos terminaron en {p} — set sin ganador',
 
     'log.youDraw': 'robaste',
-    'log.youEnd': 'terminaste el turno',
+    'log.youEnd': 'pediste carta',
     'log.youStand': 'te plantaste',
     'log.oppCard': 'el rival jugó una carta',
     'log.oppStand': 'el rival se plantó',
@@ -454,11 +454,11 @@ const I18N = {
     'log.bonus': 'ventaja de clase: empiezas 1 set arriba',
 
     'tut.opponent': 'Ahora el rival. Roba solo — mira su total.',
-    'tut.played': 'Carta jugada. Terminar roba otra; plantarte fija el total.',
+    'tut.played': 'Carta jugada. Pedir roba otra; plantarte fija el total.',
     'tut.sixteen': '16 en total. El +4 de tu mano cae justo en 20 — y 20 se planta solo. Haz clic.',
-    'tut.bonus': 'Empiezas 1 set arriba — es clase, el punto es tuyo. Terminar roba otra carta; plantarte fija el total.',
-    'tut.draw': 'Robaste una carta. Terminar el turno roba otra; plantarte fija el total.',
-    'tut.generic': 'Un turno: robas, opcionalmente juegas una carta de la mano, y te plantas o terminas.',
+    'tut.bonus': 'Empiezas 1 set arriba — es clase, el punto es tuyo. Pedir roba otra carta; plantarte fija el total.',
+    'tut.draw': 'Robaste una carta. Pedir roba otra; plantarte fija el total.',
+    'tut.generic': 'Un turno: robas, opcionalmente juegas una carta de la mano, y pides o te plantas.',
     'tut.afterFirst': 'De aquí en adelante es tuyo: mismas reglas, sin pistas.',
     'tut.setEnd': 'Set terminado. Quien quedó más cerca de 20 sin pasarse se lleva el punto.',
     'tut.guide': 'haz clic aquí',
@@ -468,7 +468,7 @@ const I18N = {
     'intro.li1': 'cada turno robas una carta de 1 a 10 — suma a tu total',
     'intro.li2': 'pasar de 20 al final del turno es pasarse: pierdes el set',
     'intro.li3': 'en la mano tienes cuatro cartas para corregir el total, una por turno',
-    'intro.li4': 'terminar roba otra carta; plantarte fija tu total',
+    'intro.li4': 'pedir roba otra carta; plantarte fija tu total',
     'intro.li5': 'quien gana tres sets gana la partida',
     'intro.note': 'En esta clase empiezas 1 set arriba, juegas sin reloj y yo señalo dónde hacer clic. Las cartas son siempre las mismas — repite cuando quieras.',
     'intro.start': 'EMPEZAR LA CLASE',
@@ -487,8 +487,8 @@ const I18N = {
     'audio.unmute': 'ACTIVAR SONIDO',
     'audio.test': 'PROBAR AUDIO',
 
-    'tip.end.head': 'TERMINAR TURNO',
-    'tip.end.body': 'cierra el turno sin plantarte. robas otra carta en el próximo turno y sigues buscando acercarte a 20.',
+    'tip.end.head': 'PEDIR',
+    'tip.end.body': 'pides otra carta del mazo. tu total sube y sigues buscando acercarte a 20 sin pasarte.',
     'tip.pause.head': 'PAUSA',
     'tip.pause.body': 'congela el reloj de 10s y detiene al rival. el juego solo avanza cuando reanudas.',
     'tip.stand.head': 'PLANTARSE',
@@ -528,7 +528,7 @@ const I18N = {
       <h3>Turno</h3>
       <ol><li>Robas una carta del mazo principal.</li>
       <li>Puedes jugar <strong>una</strong> carta de la mano (opcional).</li>
-      <li>Luego eliges <strong>terminar</strong> (robas otra) o <strong>plantarte</strong>.</li></ol>
+      <li>Luego eliges <strong>pedir</strong> (robas otra) o <strong>plantarte</strong>.</li></ol>
       <p>Pasar de 20 al final del turno es pasarse: pierdes el set.</p>
       <h3>Tipos de carta</h3>
       <ul><li><b class="c-plus">+</b> suma su valor.</li>
@@ -561,7 +561,7 @@ const I18N = {
     'ui.yourTurn': 'ВАШ ХОД',
     'ui.oppTurn': 'ХОД СОПЕРНИКА {name}',
     'ui.set': 'СЕТ {n}',
-    'ui.endTurn': 'ЗАВЕРШИТЬ ХОД',
+    'ui.endTurn': 'ВЗЯТЬ',
     'ui.stand': 'СТОП',
     'ui.continue': 'ПРОДОЛЖИТЬ',
     'ui.yourHand': 'ВАША РУКА',
@@ -620,7 +620,7 @@ const I18N = {
     'set.tieLine': 'оба закончили на {p} — победителя нет',
 
     'log.youDraw': 'вы взяли карту',
-    'log.youEnd': 'вы завершили ход',
+    'log.youEnd': 'вы взяли ещё',
     'log.youStand': 'вы остановились',
     'log.oppCard': 'соперник сыграл карту',
     'log.oppStand': 'соперник остановился',
@@ -631,11 +631,11 @@ const I18N = {
     'log.bonus': 'бонус урока: вы начинаете с форой в 1 сет',
 
     'tut.opponent': 'Теперь соперник. Он берёт карты сам — следите за его суммой.',
-    'tut.played': 'Карта сыграна. Завершить — взять ещё; стоп — зафиксировать сумму.',
+    'tut.played': 'Карта сыграна. Взять — ещё карта; стоп — зафиксировать сумму.',
     'tut.sixteen': 'У вас 16. Карта +4 в руке даёт ровно 20 — а 20 останавливается сама. Нажмите на неё.',
-    'tut.bonus': 'Вы начинаете с форой в 1 сет — это урок, очко ваше. Завершить — взять ещё карту; стоп — зафиксировать сумму.',
-    'tut.draw': 'Вы взяли карту. Завершение хода даёт новую; стоп фиксирует сумму.',
-    'tut.generic': 'Ход: взять карту, по желанию сыграть одну из руки, затем стоп или завершить.',
+    'tut.bonus': 'Вы начинаете с форой в 1 сет — это урок, очко ваше. Взять — ещё карта; стоп — зафиксировать сумму.',
+    'tut.draw': 'Вы взяли карту. Взять — ещё карта; стоп фиксирует сумму.',
+    'tut.generic': 'Ход: взять карту, по желанию сыграть одну из руки, затем взять ещё или стоп.',
     'tut.afterFirst': 'Дальше сами: те же правила, без подсказок.',
     'tut.setEnd': 'Сет окончен. Кто ближе к 20 без перебора, тот берёт очко.',
     'tut.guide': 'нажмите здесь',
@@ -645,7 +645,7 @@ const I18N = {
     'intro.li1': 'каждый ход вы берёте карту от 1 до 10 — она прибавляется к сумме',
     'intro.li2': 'больше 20 в конце хода — перебор: вы теряете сет',
     'intro.li3': 'в руке четыре карты, чтобы поправить сумму — по одной за ход',
-    'intro.li4': 'завершить — взять ещё карту; стоп — зафиксировать сумму',
+    'intro.li4': 'взять — ещё карта; стоп фиксирует сумму',
     'intro.li5': 'кто выиграет три сета, тот выиграл партию',
     'intro.note': 'На этом уроке вы начинаете с форой в 1 сет, играете без таймера, а я показываю, куда нажимать. Карты всегда одни и те же — можно повторять сколько угодно.',
     'intro.start': 'НАЧАТЬ УРОК',
@@ -664,8 +664,8 @@ const I18N = {
     'audio.unmute': 'ВКЛЮЧИТЬ ЗВУК',
     'audio.test': 'ПРОВЕРИТЬ ЗВУК',
 
-    'tip.end.head': 'ЗАВЕРШИТЬ ХОД',
-    'tip.end.body': 'закрывает ход без стопа. в следующем ходу вы возьмёте ещё карту и продолжите идти к 20.',
+    'tip.end.head': 'ВЗЯТЬ',
+    'tip.end.body': 'берёте ещё одну карту из колоды. сумма растёт, и вы продолжаете идти к 20 без перебора.',
     'tip.pause.head': 'ПАУЗА',
     'tip.pause.body': 'замораживает таймер на 10с и держит соперника. игра идёт только после продолжения.',
     'tip.stand.head': 'СТОП',
@@ -705,7 +705,7 @@ const I18N = {
       <h3>Ход</h3>
       <ol><li>Вы берёте карту из основной колоды.</li>
       <li>Можете сыграть <strong>одну</strong> карту из руки (не обязательно).</li>
-      <li>Затем выбираете: <strong>завершить</strong> (взять ещё) или <strong>стоп</strong>.</li></ol>
+      <li>Затем выбираете: <strong>взять</strong> (ещё карту) или <strong>стоп</strong>.</li></ol>
       <p>Перебор больше 20 в конце хода — вы теряете сет.</p>
       <h3>Типы карт</h3>
       <ul><li><b class="c-plus">+</b> прибавляет значение.</li>
@@ -738,7 +738,7 @@ const I18N = {
     'ui.yourTurn': '轮到你了',
     'ui.oppTurn': '对手 {name} 的回合',
     'ui.set': '第 {n} 局',
-    'ui.endTurn': '结束回合',
+    'ui.endTurn': '要牌',
     'ui.stand': '停牌',
     'ui.continue': '继续',
     'ui.yourHand': '你的手牌',
@@ -797,7 +797,7 @@ const I18N = {
     'set.tieLine': '双方都是 {p} — 本局无人获胜',
 
     'log.youDraw': '你抽了牌',
-    'log.youEnd': '你结束了回合',
+    'log.youEnd': '你要了一张牌',
     'log.youStand': '你停牌了',
     'log.oppCard': '对手打出一张牌',
     'log.oppStand': '对手停牌',
@@ -808,11 +808,11 @@ const I18N = {
     'log.bonus': '教学优势：你以 1 局领先开局',
 
     'tut.opponent': '现在轮到对手。他自己抽牌 — 注意他的总分。',
-    'tut.played': '已出牌。结束会再抽一张；停牌会锁定总分。',
+    'tut.played': '已出牌。要牌会再抽一张；停牌会锁定总分。',
     'tut.sixteen': '总分 16。手牌里的 +4 正好到 20 —— 而 20 会自动停牌。点它。',
-    'tut.bonus': '你以 1 局领先开局 —— 这是教学，分是你的。结束会再抽牌；停牌锁定总分。',
-    'tut.draw': '你抽了一张牌。结束回合会再抽一张；停牌锁定总分。',
-    'tut.generic': '一个回合：抽一张牌，可选打出一张手牌，然后停牌或结束。',
+    'tut.bonus': '你以 1 局领先开局 —— 这是教学，分是你的。要牌会再抽一张；停牌锁定总分。',
+    'tut.draw': '你抽了一张牌。要牌会再抽一张；停牌锁定总分。',
+    'tut.generic': '一个回合：抽一张牌，可选打出一张手牌，然后要牌或停牌。',
     'tut.afterFirst': '接下来靠你自己：规则相同，不再提示。',
     'tut.setEnd': '本局结束。没有爆牌且最接近 20 的一方得分。',
     'tut.guide': '点这里',
@@ -822,7 +822,7 @@ const I18N = {
     'intro.li1': '每个回合你抽一张 1 到 10 的牌 —— 它加进你的总分',
     'intro.li2': '回合结束时超过 20 就是爆牌：你输掉这一局',
     'intro.li3': '手上有四张牌可以修正总分，每回合一张',
-    'intro.li4': '结束会再抽一张；停牌锁定你的总分',
+    'intro.li4': '要牌会再抽一张；停牌锁定你的总分',
     'intro.li5': '赢下三局就赢下整场比赛',
     'intro.note': '本节课你以 1 局领先开局，没有计时器，我会指出该点哪里。牌序始终相同 —— 可以反复练习。',
     'intro.start': '开始教学',
@@ -841,8 +841,8 @@ const I18N = {
     'audio.unmute': '开启声音',
     'audio.test': '测试声音',
 
-    'tip.end.head': '结束回合',
-    'tip.end.body': '不掀牌结束本回合。下回合你会再抽一张，继续接近 20。',
+    'tip.end.head': '要牌',
+    'tip.end.body': '再抽一张牌。总分增加，继续接近 20 而不爆牌。',
     'tip.pause.head': '暂停',
     'tip.pause.body': '冻结 10 秒计时并停住对手。你继续后游戏才会推进。',
     'tip.stand.head': '停牌',
@@ -882,7 +882,7 @@ const I18N = {
       <h3>回合</h3>
       <ol><li>你从主牌堆抽一张牌。</li>
       <li>可以打出 <strong>一张</strong> 手牌（可选）。</li>
-      <li>然后选择 <strong>结束</strong>（再抽一张）或 <strong>停牌</strong>。</li></ol>
+      <li>然后选择 <strong>要牌</strong>（再抽一张）或 <strong>停牌</strong>。</li></ol>
       <p>回合结束时超过 20 就是爆牌，输掉本局。</p>
       <h3>牌的種類</h3>
       <ul><li><b class="c-plus">+</b> 加上数值。</li>
@@ -915,7 +915,7 @@ const I18N = {
     'ui.yourTurn': 'あなたの番です',
     'ui.oppTurn': '相手 {name} の番です',
     'ui.set': 'セット {n}',
-    'ui.endTurn': 'ターン終了',
+    'ui.endTurn': 'ヒット',
     'ui.stand': 'ステイ',
     'ui.continue': '続ける',
     'ui.yourHand': '手札',
@@ -974,7 +974,7 @@ const I18N = {
     'set.tieLine': '両者 {p} — 勝者なし',
 
     'log.youDraw': 'カードを引きました',
-    'log.youEnd': 'ターンを終えました',
+    'log.youEnd': 'ヒットしました',
     'log.youStand': 'ステイしました',
     'log.oppCard': '相手がカードを出しました',
     'log.oppStand': '相手がステイしました',
@@ -985,11 +985,11 @@ const I18N = {
     'log.bonus': 'レッスン特典：1セット先行で開始',
 
     'tut.opponent': '次は相手です。自分で引くので、合計を見ておきましょう。',
-    'tut.played': 'カードを出しました。終了で次を引き、ステイで合計を固定します。',
+    'tut.played': 'カードを出しました。ヒットで次を引き、ステイで合計を固定します。',
     'tut.sixteen': '合計16。手札の +4 でちょうど20 — 20は自動でステイします。クリックしましょう。',
-    'tut.bonus': '1セット先行で開始します — レッスンなので点はあなたのもの。終了で引き直し、ステイで合計を固定します。',
-    'tut.draw': 'カードを引きました。ターン終了で次を引き、ステイで合計を固定します。',
-    'tut.generic': '1ターン：カードを引き、必要なら手札を1枚出し、ステイか終了を選びます。',
+    'tut.bonus': '1セット先行で開始します — レッスンなので点はあなたのもの。ヒットで引き直し、ステイで合計を固定します。',
+    'tut.draw': 'カードを引きました。ヒットで次を引き、ステイで合計を固定します。',
+    'tut.generic': '1ターン：カードを引き、必要なら手札を1枚出し、ヒットかステイを選びます。',
     'tut.afterFirst': 'ここからは自分で。ルールは同じ、ヒントはありません。',
     'tut.setEnd': 'セット終了。バーストせず20に最も近い方が点を取ります。',
     'tut.guide': 'ここをクリック',
@@ -999,7 +999,7 @@ const I18N = {
     'intro.li1': '毎ターン1〜10のカードを引き、合計に加わります',
     'intro.li2': 'ターン終了時に20を超えるとバースト：セットを失います',
     'intro.li3': '手札には合計を調整する4枚があり、1ターンに1枚使えます',
-    'intro.li4': '終了でカードを引き、ステイで合計を固定します',
+    'intro.li4': 'ヒットでカードを引き、ステイで合計を固定します',
     'intro.li5': '3セット先取で試合の勝ちです',
     'intro.note': 'このレッスンでは1セット先行で始まり、タイマーなし、次に押す場所を私が示します。カードは毎回同じなので、何度でも練習できます。',
     'intro.start': 'レッスンを始める',
@@ -1018,8 +1018,8 @@ const I18N = {
     'audio.unmute': '音を出す',
     'audio.test': '音をテスト',
 
-    'tip.end.head': 'ターン終了',
-    'tip.end.body': 'ステイせずにターンを閉じます。次のターンにまた引き、20に近づきます。',
+    'tip.end.head': 'ヒット',
+    'tip.end.body': '山からもう1枚引きます。合計が増え、20に近づきます。',
     'tip.pause.head': '一時停止',
     'tip.pause.body': '10秒タイマーを止め、相手も止めます。再開するまでゲームは進みません。',
     'tip.stand.head': 'ステイ',
@@ -1059,7 +1059,7 @@ const I18N = {
       <h3>ターン</h3>
       <ol><li>メインデッキから1枚引きます。</li>
       <li>手札から<strong>1枚</strong>出せます（任意）。</li>
-      <li>その後<strong>終了</strong>（もう1枚引く）か<strong>ステイ</strong>を選びます。</li></ol>
+      <li>その後<strong>ヒット</strong>（もう1枚引く）か<strong>ステイ</strong>を選びます。</li></ol>
       <p>ターン終了時に20を超えるとバーストでセットを失います。</p>
       <h3>カードの種類</h3>
       <ul><li><b class="c-plus">+</b> 値を足す。</li>
