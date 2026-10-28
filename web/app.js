@@ -227,6 +227,9 @@ const sfx = {
 const TURN_MS = 10000;
 const WARN_MS = 6000;
 
+/* quanto tempo o resumo de fim de set fica na tela */
+const SET_BANNER_MS = 3100;
+
 function clockPaint(left) {
   const box = $('#turn-clock');
   const view = $('#view-game');
@@ -848,7 +851,7 @@ function flash(title, sub, note) {
   }
   b.querySelector('#banner-btn').classList.add('hidden');
   b.classList.remove('hidden');
-  return wait(2100).then(() => b.classList.add('hidden'));
+  return wait(SET_BANNER_MS).then(() => b.classList.add('hidden'));
 }
 
 function setResultLine(sw) {
