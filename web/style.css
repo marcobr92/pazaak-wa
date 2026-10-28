@@ -118,6 +118,13 @@ main{
   color:var(--orange);text-shadow:0 0 24px rgba(255,122,26,.35);
   margin-right:-.32em;
 }
+/* passatempo: hover numa letra troca o preenchimento por contorno */
+.home-head h1 span{transition:color .12s ease,text-shadow .12s ease}
+.home-head h1 span:hover{
+  color:transparent;
+  -webkit-text-stroke:1px var(--orange);
+  text-shadow:none;
+}
 .sub{color:var(--dim);font-size:11px;letter-spacing:.28em;margin-top:6px}
 
 /* ── modos ────────────────────────────────────────────────────────────── */
@@ -201,6 +208,10 @@ main{
 }
 #side-p{box-shadow:0 0 0 1px rgba(255,65,54,var(--alert,0))}
 .side-label{font-size:9px;letter-spacing:.3em;color:var(--dim);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.side-plate{
+  display:inline-block;padding:4px 10px;border:1px solid var(--line2);
+  background:rgba(255,255,255,.04);color:#cfdade;letter-spacing:.28em;
+}
 .cards{display:flex;flex-wrap:wrap;gap:6px;min-height:96px;align-content:flex-start}
 .sum{
   font-size:46px;font-weight:800;letter-spacing:.04em;margin-top:14px;
